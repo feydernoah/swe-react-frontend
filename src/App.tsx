@@ -1,15 +1,11 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './Login.tsx';
 import Cookies from 'js-cookie';
 import TopBar from './TopBar';
 
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
-  const handleLogout = () => {
-    Cookies.remove('access_token');
-    window.location.reload();
-  };
   return (
     <BrowserRouter>
       <Routes>
@@ -18,7 +14,7 @@ const App = () => {
           path="*"
           element={
             <div className="app-bg">
-              <TopBar hasToken={hasToken} onLogout={handleLogout} />
+              <TopBar hasToken={hasToken}/>
               {/* Hier kann weiterer Seiteninhalt stehen */}
             </div>
           }

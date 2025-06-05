@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+.top-bar {
+  @apply bg-white w-full flex flex-row items-center justify-between p-4 gap-4 flex-nowrap;
+}
+.banner-svg {
+  @apply w-1/4 sm:w-1/5 md:w-1/6 lg:w-1/12 h-auto flex-shrink-0;
+}
+
+.top-bar-burger {
+  @apply w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ml-0 text-black;
+}
