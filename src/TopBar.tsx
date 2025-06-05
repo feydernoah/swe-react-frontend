@@ -1,29 +1,51 @@
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Bars3Icon } from '@heroicons/react/24/solid';
+import { useState } from 'react';
 import './TopBar.css';
+import './Login.css'
 interface TopBarProps {
   hasToken: boolean;
+  username: string;
 }
 
-const TopBar = ({ hasToken }: TopBarProps) => (
-  <div className="top-bar">
-    <img
-      src="/file.svg"
-      alt="Banner"
-      className="banner-svg"
-    />
-    <Bars3Icon className="top-bar-burger"/>
-    {hasToken ? (
-      <button className="login-btn" onClick={() => { Cookies.remove('access_token'); window.location.reload(); }}>
-        Logout
-      </button>
-    ) : (
-      <Link to="/login">
-        <button className="login-btn">Login</button>
-      </Link>
-    )}
-  </div>
-);
+const TopBar = ({ hasToken, username }: TopBarProps) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  return (
+    <div className="top-bar">
+      <div className="flex items-center gap-1 relative">
+        <img
+          src="/file.svg"
+          alt="Banner"
+          className="banner-svg"
+        />
+        <button
+          className="burger-button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label="Menü öffnen"
+        >
+          <Bars3Icon className="top-bar-burger" />
+        </button>
+        {menuOpen && (
+          <div className="burger-menu">
+            {username === 'admin' && (
+              <button className="burger-options">Anlegen</button>
+            )}
+            <button className="burger-options">Suchen</button>
+          </div>
+        )}
+      </div>
+      {hasToken ? (
+        <button className="login-btn" onClick={() => { Cookies.remove('access_token'); Cookies.remove('username'); window.location.reload(); }}>
+          Logout
+        </button>
+      ) : (
+        <Link to="/login">
+          <button className="login-btn">Login</button>
+        </Link>
+      )}
+    </div>
+  );
+};
 
 export default TopBar;

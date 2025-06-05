@@ -23,6 +23,7 @@ const LoginPage = () => {
       const result = await response.json();
       if (result.access_token) {
         Cookies.set('access_token', result.access_token, { expires: 7 });
+        Cookies.set('username', data.username, { expires: 7 });
       }
       navigate('/');
       window.location.reload();

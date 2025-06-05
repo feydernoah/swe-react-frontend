@@ -6,6 +6,7 @@ import TopBar from './TopBar';
 
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
+  const username = Cookies.get('username');
   return (
     <BrowserRouter>
       <Routes>
@@ -14,7 +15,7 @@ const App = () => {
           path="*"
           element={
             <div className="app-bg">
-              <TopBar hasToken={hasToken}/>
+              <TopBar hasToken={hasToken} username={username} />
               {/* Hier kann weiterer Seiteninhalt stehen */}
             </div>
           }
