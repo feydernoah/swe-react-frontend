@@ -29,7 +29,9 @@ const TopBar = ({ hasToken, username }: TopBarProps) => {
         {menuOpen && (
           <div className="burger-menu">
             {username === 'admin' && (
-              <button className="burger-options">Anlegen</button>
+                <Link to="/create">
+                    <button className="burger-options">Anlegen</button>
+              </Link>
             )}
             <button className="burger-options" onClick={() => window.location.href = '/search'}>Suchen</button>
           </div>

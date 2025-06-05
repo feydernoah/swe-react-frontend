@@ -12,6 +12,7 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/create" element={<Create />} />
         <Route
           path="/search"
           element={
@@ -22,7 +23,7 @@ const App = () => {
           }
         />
         <Route
-          path="*"
+          path="/"
           element={
             <div className="app-bg">
               <TopBar hasToken={hasToken} username={username} />
