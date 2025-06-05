@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './Login.tsx';
 import Cookies from 'js-cookie';
 import TopBar from './TopBar';
+import Create from './Create.tsx';
 
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
@@ -11,8 +12,9 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/create" element={<Create />} />
         <Route
-          path="*"
+          path="/"
           element={
             <div className="app-bg">
               <TopBar hasToken={hasToken} username={username} />
