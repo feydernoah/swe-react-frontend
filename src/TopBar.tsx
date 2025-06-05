@@ -6,7 +6,7 @@ import './TopBar.css';
 import './Login.css'
 interface TopBarProps {
   hasToken: boolean;
-  username: string;
+  username?: string;
 }
 
 const TopBar = ({ hasToken, username }: TopBarProps) => {
@@ -31,7 +31,7 @@ const TopBar = ({ hasToken, username }: TopBarProps) => {
             {username === 'admin' && (
               <button className="burger-options">Anlegen</button>
             )}
-            <button className="burger-options">Suchen</button>
+            <button className="burger-options" onClick={() => window.location.href = '/search'}>Suchen</button>
           </div>
         )}
       </div>
