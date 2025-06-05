@@ -4,6 +4,7 @@ import LoginPage from './Login.tsx';
 import Cookies from 'js-cookie';
 import TopBar from './TopBar';
 import SearchPage from './SearchPage';
+import Create from './Create';
 
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
