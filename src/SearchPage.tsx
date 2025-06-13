@@ -1,11 +1,25 @@
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import './App.css';
+import Cookies from 'js-cookie';
 
 interface Book {
   id: string;
-  titel: string;
-  // Add more fields as needed, but avoid 'any'.
+  isbn: string;
+  rating: number;
+  preis: number;
+  art: string;
+  rabatt: number;
+  lieferbar: boolean;
+  datum: string;
+  homepage: string;
+  schlagwoerter?: string[];
+  abbildungen?: Array<{ contentType: string; beschriftung?: string; }>; // optional, as in backend
+  titel: string | {
+    titel: string;
+    untertitel?: string;
+  };
+  // Add any other fields as needed from backend DTOs
 }
 
 interface SearchFormInputs {
@@ -47,11 +61,21 @@ const renderBookFields = (entries: [string, unknown][]) => {
 };
 
 // Helper to render other fields
-const renderOtherFields = (entries: [string, unknown][]) => {
+const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookId: string, newRating: number) => void, bookId?: string) => {
+  const username = Cookies.get('username');
   return entries.map(([key, value]) => {
     if ([
       'id', 'titel'
     ].includes(key) || key.toLowerCase() === 'schlagwoerter') return null;
+    if (key.toLowerCase() === 'rating' && typeof value === 'number' && bookId) {
+      const isAdmin = username === 'admin';
+      return (
+        <div key={key} className="flex items-center gap-2">
+          <span className="font-bold capitalize">Bewertung:</span>
+          <StarRating rating={value} onRatingChange={isAdmin ? (r) => onRatingChange && onRatingChange(bookId, r) : undefined} interactive={isAdmin} />
+        </div>
+      );
+    }
     if (typeof value === 'string' || typeof value === 'number') {
       return (
         <div key={key}><span className="font-bold capitalize">{key}:</span> {value}</div>
@@ -83,16 +107,46 @@ const renderOtherFields = (entries: [string, unknown][]) => {
   });
 };
 
+const StarRating = ({ rating, onRatingChange, interactive }: { rating: number, onRatingChange?: (newRating: number) => void, interactive?: boolean }) => {
+  const [hovered, setHovered] = useState<number | null>(null);
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          className="focus:outline-none"
+          onClick={interactive && onRatingChange ? () => onRatingChange(star) : undefined}
+          onMouseEnter={interactive ? () => setHovered(star) : undefined}
+          onMouseLeave={interactive ? () => setHovered(null) : undefined}
+          aria-label={`Set rating to ${star}`}
+          disabled={!interactive}
+          tabIndex={interactive ? 0 : -1}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill={(hovered !== null && interactive ? star <= hovered : star <= rating) ? '#facc15' : '#374151'}
+            className="w-6 h-6 transition-colors duration-150"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
+          </svg>
+        </button>
+      ))}
+    </div>
+  );
+};
+
 const SearchPage = () => {
   const { register, handleSubmit } = useForm<SearchFormInputs>();
   const [books, setBooks] = useState<Book[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Pagination state
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [lastSearchAll, setLastSearchAll] = useState(false);
   const [lastSearchInput, setLastSearchInput] = useState<SearchFormInputs>({ id: '' });
+  const [bookEtags, setBookEtags] = useState<Record<string, string>>({});
 
   const onSubmit = async (data: SearchFormInputs, pageOverride?: number, pageSizeOverride?: number) => {
     setLastSearchInput(data); // Save last search input
@@ -114,6 +168,15 @@ const SearchPage = () => {
         url += `?page=${pageParam}&size=${sizeParam}`;
       }
       const res = await fetch(url);
+      // Store ETags for each book
+      const etags: Record<string, string> = {};
+      if (res.headers) {
+        // Single book fetch
+        const etag = res.headers.get('etag');
+        if (etag && data.id.trim()) {
+          etags[data.id.trim()] = etag;
+        }
+      }
       // 304 Not Modified: Versuche, trotzdem den Body zu lesen, falls einer kommt
       if (res.status === 304) {
         let result = null;
@@ -144,7 +207,7 @@ const SearchPage = () => {
             errorText = errorResult.message || errorResult.error;
           }
         } catch {
-          /* Fehler-Body konnte nicht gelesen werden, ignoriere */
+          // ignore JSON parse errors
         }
         setBooks([]);
         setError(errorText);
@@ -156,6 +219,21 @@ const SearchPage = () => {
         setError(result.message || 'Fehlerhafte Antwort vom Server');
         return;
       }
+      // If paginated, try to get ETags from headers (if available)
+      if (Array.isArray(result)) {
+        // Not paginated, but multiple books (rare)
+        // No ETags in headers for each book
+      } else if (result && typeof result === 'object' && 'content' in result && Array.isArray(result.content)) {
+        // Paginated: try to get ETags from headers (if backend supports it)
+        // Not standard, so skip for now
+      } else if (result && typeof result === 'object' && result.id) {
+        // Single book
+        const etag = res.headers.get('etag');
+        if (etag && result.id) {
+          etags[result.id] = etag;
+        }
+      }
+      setBookEtags(prev => ({ ...prev, ...etags }));
       setBooks(Array.isArray(result) ? result : (result && typeof result === 'object' ? [result] : []));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
@@ -176,6 +254,102 @@ const SearchPage = () => {
     setPageSize(newSize);
     setPage(0);
     onSubmit(lastSearchInput, 0, newSize);
+  };
+
+  const handleRatingChange = async (bookId: string, newRating: number) => {
+    const token = Cookies.get('access_token');
+    if (!token) {
+      setError('Nicht eingeloggt oder keine Berechtigung');
+      return;
+    }
+    // Find the book to update (handle paginated and non-paginated)
+    let bookToUpdate: Book | undefined = undefined;
+    if (books && books.length > 0) {
+      // Check if paginated (books[0].content is an array)
+      const firstBook = books[0] as unknown;
+      const isPaginated = typeof firstBook === 'object' && firstBook !== null && 'content' in firstBook && Array.isArray((firstBook as { content?: unknown }).content);
+      if (isPaginated) {
+        const contentBooks = (firstBook as { content: Book[] }).content;
+        bookToUpdate = contentBooks.find(b => b.id === bookId);
+      } else {
+        bookToUpdate = books.find(b => b.id === bookId);
+      }
+    }
+    if (!bookToUpdate) {
+      setError('Buch nicht gefunden: ' + bookId);
+      return;
+    }
+    // Build the full book object for PUT (copy all fields, update rating)
+    const fullBook: Book = {
+      ...bookToUpdate,
+      rating: newRating,
+    };
+    let etag = bookEtags[bookId];
+    if (!etag) {
+      // Fetch ETag for this book
+      try {
+        const res = await fetch(`https://localhost:3000/rest/${encodeURIComponent(bookId)}`);
+        if (!res.ok) throw new Error('Fehler beim Nachladen des ETags');
+        const fetchedEtag = res.headers.get('etag');
+        if (fetchedEtag) {
+          etag = fetchedEtag;
+          setBookEtags(prev => ({ ...prev, [bookId]: fetchedEtag }));
+        }
+      } catch {
+        setError('ETag für das Buch nicht gefunden. Bitte laden Sie die Seite neu.');
+        return;
+      }
+    }
+    if (!etag) {
+      setError('ETag für das Buch nicht gefunden. Bitte laden Sie die Seite neu.');
+      return;
+    }
+    try {
+      const res = await fetch(`https://localhost:3000/rest/${encodeURIComponent(bookId)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'If-Match': etag,
+        },
+        body: JSON.stringify(fullBook)
+      });
+      if (!res.ok) {
+        let errorText = 'Fehler beim Aktualisieren der Bewertung';
+        try {
+          const errorResult = await res.json();
+          if (errorResult && (errorResult.message || errorResult.error)) {
+            errorText = errorResult.message || errorResult.error;
+          }
+        } catch {
+          // ignore JSON parse errors
+        }
+        setError(errorText);
+        return;
+      }
+      setBooks((prev) => {
+        if (!prev) return prev;
+        // Check if paginated
+        const firstBook = prev[0] as unknown;
+        const isPaginated = prev.length === 1 && typeof firstBook === 'object' && firstBook !== null && 'content' in firstBook && Array.isArray((firstBook as { content?: unknown }).content);
+        if (isPaginated) {
+          // Update in content array
+          const paginated = firstBook as { content: Book[] };
+          const updatedContent = paginated.content.map(b => b.id === bookId ? { ...b, rating: newRating } : b);
+          return [{ ...paginated, content: updatedContent }] as unknown as Book[];
+        } else {
+          // Update in flat array
+          return prev.map(b => b.id === bookId ? { ...b, rating: newRating } : b);
+        }
+      });
+      // Update ETag if present in response
+      const newEtag = res.headers.get('etag');
+      if (newEtag) {
+        setBookEtags(prev => ({ ...prev, [bookId]: newEtag }));
+      }
+    } catch {
+      setError('Fehler beim Aktualisieren der Bewertung');
+    }
   };
 
   // Render list of books (paginated or not)
@@ -213,7 +387,7 @@ const SearchPage = () => {
                     </div>
                   )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                    {renderOtherFields(entries)}
+                    {renderOtherFields(entries, handleRatingChange, buch.id as string)}
                   </div>
                 </li>
               );
@@ -282,7 +456,7 @@ const SearchPage = () => {
                   </div>
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                  {renderOtherFields(entries)}
+                  {renderOtherFields(entries, handleRatingChange, buch.id)}
                 </div>
               </li>
             );
@@ -295,18 +469,36 @@ const SearchPage = () => {
   return (
     <div className="app-bg flex-1 flex flex-col items-center justify-center">
       <h2 className="text-3xl font-bold mb-6 text-white">Buchsuche</h2>
-      <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="flex flex-col items-center gap-4 w-full max-w-md">
-        <input
-          className="rounded p-2 w-full bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          type="text"
-          placeholder="Buch-ID eingeben (leer = alle Bücher)"
-          {...register('id')}
-        />
-        <button className="login-btn w-full" type="submit" disabled={loading}>
-          {loading ? 'Suche...' : 'Suchen'}
-        </button>
+      <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="flex flex-col items-center gap-4 w-full max-w-2xl bg-gray-800 rounded-lg p-6 shadow-lg">
+        <div className="w-full">
+          <label htmlFor="id" className="block text-sm font-medium text-white mb-2">Buch ID oder ISBN:</label>
+          <div className="flex gap-2">
+            <input
+              id="id"
+              type="text"
+              {...register('id')}
+              className="flex-1 rounded-lg p-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="Geben Sie die Buch-ID oder ISBN ein"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition-colors duration-150"
+            >
+              Suchen
+            </button>
+          </div>
+        </div>
+        {error && (
+          <div className="text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
+        {loading && (
+          <div className="text-white text-sm text-center">
+            Lade Bücher...
+          </div>
+        )}
       </form>
-      {error && <div className="text-red-400 mt-4">{error}</div>}
       {renderBooks()}
     </div>
   );
