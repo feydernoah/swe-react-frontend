@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import TopBar from './TopBar';
 import SearchPage from './SearchPage';
 import Create from './Create';
+import CreateImage from './CreateImage';
 
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
@@ -14,6 +15,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/create" element={<Create />} />
+        <Route path="/create-image" element={<CreateImage />} />
         <Route
           path="/search"
           element={

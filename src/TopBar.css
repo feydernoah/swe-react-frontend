@@ -2,10 +2,11 @@
 @plugin "daisyui";
 
 .top-bar {
-  @apply bg-white w-full flex flex-row items-center justify-between p-4 gap-4 flex-nowrap;
+  @apply bg-white w-full flex flex-row items-center justify-between p-4 flex-nowrap;
 }
+
 .banner-svg {
-  @apply w-1/4 sm:w-1/5 md:w-1/6 lg:w-1/8 xl:w-1/6 h-auto flex-shrink-0;
+  @apply w-14 h-14 flex-shrink-0 m-0;
 }
 
 .top-bar-burger {

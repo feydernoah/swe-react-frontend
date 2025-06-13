@@ -14,11 +14,13 @@ const TopBar = ({ hasToken, username }: TopBarProps) => {
   return (
     <div className="top-bar">
       <div className="flex items-center gap-1 relative">
-        <img
-          src="/file.svg"
-          alt="Banner"
-          className="banner-svg"
-        />
+        <Link to="/">
+          <img
+            src="/file.svg"
+            alt="Banner"
+            className="banner-svg"
+          />
+        </Link>
         <button
           className="burger-button"
           onClick={() => setMenuOpen((open) => !open)}
@@ -29,11 +31,19 @@ const TopBar = ({ hasToken, username }: TopBarProps) => {
         {menuOpen && (
           <div className="burger-menu">
             {username === 'admin' && (
-                <Link to="/create">
+              <>
+              <Link to="/create">
                     <button className="burger-options">Anlegen</button>
               </Link>
+              <Link to="/create-image">
+                    <button className="burger-options">Bild Anlegen</button>
+              </Link>
+              </>
             )}
-            <button className="burger-options" onClick={() => window.location.href = '/search'}>Suchen</button>
+            <Link to="/search">
+                    <button className="burger-options">Search</button>
+            </Link>
+
           </div>
         )}
       </div>
