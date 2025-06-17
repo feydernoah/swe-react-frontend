@@ -23,7 +23,8 @@ interface Book {
 }
 
 interface SearchFormInputs {
-  id: string;
+  query: string;
+  art?: string;
 }
 
 // Helper to render book fields
@@ -145,70 +146,59 @@ const SearchPage = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [lastSearchAll, setLastSearchAll] = useState(false);
-  const [lastSearchInput, setLastSearchInput] = useState<SearchFormInputs>({ id: '' });
+  const [lastSearchInput, setLastSearchInput] = useState<SearchFormInputs>({ query: '', art: '' });
   const [bookEtags, setBookEtags] = useState<Record<string, string>>({});
 
   const onSubmit = async (data: SearchFormInputs, pageOverride?: number, pageSizeOverride?: number) => {
-    setLastSearchInput(data); // Save last search input
+    setLastSearchInput(data);
     setLoading(true);
     setError(null);
     setBooks(null);
-    const isAllBooks = !data.id.trim();
+    const input = data.query.trim();
+    const art = data.art || '';
+    const isAllBooks = !input && !art;
     setLastSearchAll(isAllBooks);
-    if (isAllBooks && typeof pageOverride !== 'number') setPage(0); // Reset page if new all-books search
+    if (isAllBooks && typeof pageOverride !== 'number') setPage(0);
     try {
       let url = 'https://localhost:3000/rest';
-      if (data.id.trim()) {
-        url += `/${encodeURIComponent(data.id.trim())}`;
+      const isbnRegex = /^(97(8|9)[- ]?)?\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/i;
+      const params = new URLSearchParams();
+      if (input) {
+        if (isbnRegex.test(input)) {
+          params.append('isbn', input);
+        } else {
+          url += `/${encodeURIComponent(input)}`;
+        }
+      }
+      if (art) {
+        params.append('art', art);
       }
       if (isAllBooks) {
-        // Use 1-based page index for backend
         const pageParam = (typeof pageOverride === 'number' ? pageOverride : page) + 1;
         const sizeParam = typeof pageSizeOverride === 'number' ? pageSizeOverride : pageSize;
-        url += `?page=${pageParam}&size=${sizeParam}`;
+        params.append('page', String(pageParam));
+        params.append('size', String(sizeParam));
+      }
+      if (params.toString()) {
+        url += (url.includes('?') ? '&' : '?') + params.toString();
       }
       const res = await fetch(url);
-      // Store ETags for each book
       const etags: Record<string, string> = {};
-      if (res.headers) {
-        // Single book fetch
-        const etag = res.headers.get('etag');
-        if (etag && data.id.trim()) {
-          etags[data.id.trim()] = etag;
-        }
+      const etag = res.headers.get('etag');
+      if (etag && data.query.trim()) {
+        etags[data.query.trim()] = etag;
       }
-      // 304 Not Modified: Versuche, trotzdem den Body zu lesen, falls einer kommt
-      if (res.status === 304) {
-        let result = null;
-        try {
-          result = await res.json();
-        } catch {
-          /* Body konnte nicht gelesen werden, ignoriere */
-        }
-        if (result) {
-          setBooks(Array.isArray(result) ? result : (typeof result === 'object' ? [result] : []));
-          setError(null);
-        } else {
-          setBooks([]);
-          setError('Keine neuen Daten (304 Not Modified) und kein Buch im Body.');
-        }
-        return;
-      }
-      if (res.status === 204) {
+      if (res.status === 304 || res.status === 204) {
         setBooks([]);
-        setError('Kein Buch gefunden (204 No Content).');
+        setError(res.status === 304 ? 'Keine neuen Daten (304 Not Modified) und kein Buch im Body.' : 'Kein Buch gefunden (204 No Content).');
         return;
       }
       if (!res.ok) {
         let errorText = 'Fehler beim Laden der Bücher';
         try {
           const errorResult = await res.json();
-          if (errorResult && (errorResult.message || errorResult.error)) {
-            errorText = errorResult.message || errorResult.error;
-          }
-        } catch {
-          // ignore JSON parse errors
-        }
+          errorText = errorResult?.message || errorResult?.error || errorText;
+        } catch { /* ignore */ }
         setBooks([]);
         setError(errorText);
         return;
@@ -219,15 +209,7 @@ const SearchPage = () => {
         setError(result.message || 'Fehlerhafte Antwort vom Server');
         return;
       }
-      // If paginated, try to get ETags from headers (if available)
-      if (Array.isArray(result)) {
-        // Not paginated, but multiple books (rare)
-        // No ETags in headers for each book
-      } else if (result && typeof result === 'object' && 'content' in result && Array.isArray(result.content)) {
-        // Paginated: try to get ETags from headers (if backend supports it)
-        // Not standard, so skip for now
-      } else if (result && typeof result === 'object' && result.id) {
-        // Single book
+      if (result && typeof result === 'object' && result.id) {
         const etag = res.headers.get('etag');
         if (etag && result.id) {
           etags[result.id] = etag;
@@ -471,12 +453,12 @@ const SearchPage = () => {
       <h2 className="text-3xl font-bold mb-6 text-white">Buchsuche</h2>
       <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="flex flex-col items-center gap-4 w-full max-w-2xl bg-gray-800 rounded-lg p-6 shadow-lg">
         <div className="w-full">
-          <label htmlFor="id" className="block text-sm font-medium text-white mb-2">Buch ID oder ISBN:</label>
-          <div className="flex gap-2">
+          <label htmlFor="query" className="block text-sm font-medium text-white mb-2">Buch ID oder ISBN:</label>
+          <div className="flex gap-2 mb-2">
             <input
-              id="id"
+              id="query"
               type="text"
-              {...register('id')}
+              {...register('query')}
               className="flex-1 rounded-lg p-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
               placeholder="Geben Sie die Buch-ID oder ISBN ein"
             />
@@ -487,6 +469,18 @@ const SearchPage = () => {
               Suchen
             </button>
           </div>
+          <label htmlFor="art" className="block text-sm font-medium text-white mb-2 mt-2">Buchtyp:</label>
+          <select
+            id="art"
+            {...register('art')}
+            className="rounded-lg p-3 bg-gray-700 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            defaultValue=""
+          >
+            <option value="">Alle Typen</option>
+            <option value="EPUB">EPUB</option>
+            <option value="HARDCOVER">HARDCOVER</option>
+            <option value="PAPERBACK">PAPERBACK</option>
+          </select>
         </div>
         {error && (
           <div className="text-red-400 text-sm text-center">
