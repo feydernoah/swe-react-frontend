@@ -2,6 +2,8 @@ import TopBar from './TopBar';
 import Cookies from 'js-cookie';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { refreshAccessToken } from './TokenRefresher';
+
 
 type FormData = {
   isbn: string;
@@ -17,7 +19,26 @@ const Create = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [message, setMessage] = useState<string | null>(null);
 
+
   const onSubmit = async (data: FormData) => {
+    // Vor dem Request: Access Token prüfen und ggf. refreshen
+    let token = Cookies.get('access_token');
+    const refreshToken = Cookies.get('refresh_token');
+    if (!token) {
+      if (refreshToken) {
+        try {
+          const result = await refreshAccessToken();
+          token = result.access_token;
+        } catch {
+          setMessage('Session abgelaufen. Bitte neu einloggen.');
+          return;
+        }
+      } else {
+        setMessage('Session abgelaufen. Bitte neu einloggen.');
+        return;
+      }
+    }
+    
     const payload = {
       isbn: data.isbn,
       rating: Number(data.rating),
@@ -27,7 +48,6 @@ const Create = () => {
         untertitel: data.untertitel || undefined,
       },
     };
-    const token = Cookies.get('access_token');
     try {
       const response = await fetch('https://localhost:3000/rest', {
         method: 'POST',

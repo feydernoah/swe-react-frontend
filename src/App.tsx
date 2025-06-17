@@ -28,7 +28,7 @@ const App = () => {
         <Route
           path="/"
           element={
-            <div className="app-bg">
+            <div data-theme="lofi" className="bg-primary min-h-screen">
               <TopBar hasToken={hasToken} username={username} />
               {/* Hier kann weiterer Seiteninhalt stehen */}
             </div>

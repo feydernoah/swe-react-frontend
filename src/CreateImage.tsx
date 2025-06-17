@@ -120,7 +120,7 @@ const CreateImage = () => {
               />
               {errors.image && <span className="text-red-500 text-sm">{errors.image.message as string}</span>}
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
+            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
           </form>
           {preview && (
             <div className="flex flex-col items-center mt-8">

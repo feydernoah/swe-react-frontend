@@ -22,8 +22,9 @@ const LoginPage = () => {
       });
       const result = await response.json();
       if (result.access_token) {
-        Cookies.set('access_token', result.access_token, { expires: 7 });
-        Cookies.set('username', data.username, { expires: 7 });
+        Cookies.set('access_token', result.access_token, { expires: 0.0208 });
+        Cookies.set('refresh_token', result.refresh_token, { expires: 0.0417 });
+        Cookies.set('username', data.username, { expires: 0.0417 });
       }
       navigate('/');
       window.location.reload();
@@ -32,20 +33,20 @@ const LoginPage = () => {
     }
   };
   return (
-    <div className="login-bg">
-      <h2 className="login-title">Login</h2>
+    <div data-theme="lofi" className="bg-secondary flex flex-col items-center justify-center min-h-screen">
+      <h2 className="text-2xl text-info font-bold mb-4">Login</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="login-form">
-        <label className="login-label">
-          E-Mail
-          <input type="Username" {...register('username', { required: 'Username ist erforderlich' })} className="login-input" />
-          {errors.username && <span className="login-error">{errors.username.message as string}</span>}
+        <label className="form-control w-full max-w-xs mb-4">
+          <span className="label-text text-info">E-Mail</span>
+          <input type="text" {...register('username', { required: 'Username ist erforderlich' })} className="input input-bordered input-info w-full max-w-xs" />
+          {errors.username && <span className="text-error mt-1">{errors.username.message as string}</span>}
         </label>
-        <label className="login-label">
-          Passwort
-          <input type="password" {...register('password', { required: 'Passwort ist erforderlich' })} className="login-input" />
-          {errors.password && <span className="login-error">{errors.password.message as string}</span>}
+        <label className="form-control w-full max-w-xs mb-4">
+          <span className="label-text text-info">Passwort</span>
+          <input type="password" {...register('password', { required: 'Passwort ist erforderlich' })} className="input input-bordered input-info w-full max-w-xs" />
+          {errors.password && <span className="text-error mt-1">{errors.password.message as string}</span>}
         </label>
-        <button type="submit" className="login-btn">Login</button>
+        <button type="submit" className="btn btn-info">Login</button>
       </form>
     </div>
   );
