@@ -33,21 +33,24 @@ const LoginPage = () => {
     }
   };
   return (
-    <div data-theme="lofi" className="bg-secondary flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-2xl text-info font-bold mb-4">Login</h2>
+
+    <div data-theme="black" className="bg-primary flex flex-col items-center justify-center min-h-screen">
+      <div className="bg-base-100 rounded-lg p-8 shadow-lg">
+      <h2 className="text-2xl text-neutral font-bold mb-4">Login</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="login-form">
         <label className="form-control w-full max-w-xs mb-4">
-          <span className="label-text text-info">E-Mail</span>
-          <input type="text" {...register('username', { required: 'Username ist erforderlich' })} className="input input-bordered input-info w-full max-w-xs" />
+          <span className="label-text text-neutral">E-Mail</span>
+          <input type="text" {...register('username', { required: 'Username ist erforderlich' })} className="input input-bordered input-primary w-full max-w-xs" />
           {errors.username && <span className="text-error mt-1">{errors.username.message as string}</span>}
         </label>
         <label className="form-control w-full max-w-xs mb-4">
-          <span className="label-text text-info">Passwort</span>
-          <input type="password" {...register('password', { required: 'Passwort ist erforderlich' })} className="input input-bordered input-info w-full max-w-xs" />
+          <span className="label-text text-neutral">Passwort</span>
+          <input type="password" {...register('password', { required: 'Passwort ist erforderlich' })} className="input input-bordered input-primary w-full max-w-xs" />
           {errors.password && <span className="text-error mt-1">{errors.password.message as string}</span>}
         </label>
-        <button type="submit" className="btn btn-info">Login</button>
+        <button type="submit" className="btn btn-accent">Login</button>
       </form>
+       </div>
     </div>
   );
 };

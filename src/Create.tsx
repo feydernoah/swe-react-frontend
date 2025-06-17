@@ -97,7 +97,7 @@ const Create = () => {
     );
   } else {
     return (
-      <div className="app-bg min-h-screen">
+      <div data-theme="black" className="bg-primary min-h-screen">
         <TopBar hasToken={hasToken} username={username} />
         <div className="p-8">
           <h1 className="text-2xl font-bold mb-4">Buch anlegen</h1>

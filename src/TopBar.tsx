@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Bars3Icon } from '@heroicons/react/24/solid';
-import { useState } from 'react';
 import './Login.css'
 interface TopBarProps {
   hasToken: boolean;
@@ -10,7 +9,7 @@ interface TopBarProps {
 
 const TopBar = ({ hasToken, username }: TopBarProps) => {
   return (
-    <div data-theme="lofi" className="bg-base w-full flex flex-row items-center justify-between p-4 flex-nowrap">
+    <div data-theme="black" className="bg-neutral w-full flex flex-row items-center justify-between p-4 flex-nowrap">
       <div className="flex items-center gap-1 relative">
         <Link to="/">
           <img
@@ -20,10 +19,10 @@ const TopBar = ({ hasToken, username }: TopBarProps) => {
           />
         </Link>
         <div className="dropdown dropdown-start">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle m-1">
+          <div tabIndex={0} role="button" className="btn btn-accent btn-ghost">
             <Bars3Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ml-0 text-primary" />
           </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+          <ul tabIndex={0} className="dropdown-content menu bg-primary rounded-box z-1 w-52 p-2 shadow-sm">
             {username === 'admin' && (
               <>
                 <li>
@@ -41,12 +40,12 @@ const TopBar = ({ hasToken, username }: TopBarProps) => {
         </div>
       </div>
       {hasToken ? (
-        <button data-theme="lofi" className="btn btn-info" onClick={() => { Cookies.remove('access_token'); Cookies.remove('username'); Cookies.remove('refresh_token'); window.location.reload(); }}>
+        <button data-theme="black" className="btn btn-accent" onClick={() => { Cookies.remove('access_token'); Cookies.remove('username'); Cookies.remove('refresh_token'); window.location.reload(); }}>
           Logout
         </button>
       ) : (
         <Link to="/login">
-          <button data-theme="lofi" className="btn btn-info">Login</button>
+          <button data-theme="black" className="btn btn-accent">Login</button>
         </Link>
       )}
     </div>

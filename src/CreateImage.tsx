@@ -13,22 +13,21 @@ const CreateImage = () => {
   const username = Cookies.get('username');
   const { register, handleSubmit, formState: { errors }, reset, setValue, trigger } = useForm<ImageFormData>();
   const [message, setMessage] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
   const [buchId, setBuchId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Bild-Preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     setValue('image', files as FileList, { shouldValidate: true });
     trigger('image');
     if (files && files[0]) {
       const reader = new FileReader();
-      reader.onload = (ev) => setPreview(ev.target?.result as string);
+      reader.onload = (ev) => setPreviewUrl(ev.target?.result as string);
       reader.readAsDataURL(files[0]);
     } else {
-      setPreview(null);
+      setPreviewUrl(null);
     }
   };
 
@@ -72,7 +71,6 @@ const CreateImage = () => {
       if (response.ok) {
         setMessage('Bild erfolgreich hochgeladen!');
         reset();
-        setPreview(null);
         if (imageInputRef.current) imageInputRef.current.value = '';
       } else {
         const errorText = await response.text();
@@ -97,36 +95,43 @@ const CreateImage = () => {
   }
 
   return (
-    <div className="app-bg min-h-screen flex flex-col">
+    <div data-theme="black" className="bg-primary min-h-screen flex flex-col">
       <TopBar hasToken={hasToken} username={username} />
       <div className="flex flex-1 items-center justify-center">
+        <div className="bg-base-100 rounded-lg p-8 shadow-lg">
         <div className="p-8 w-full max-w-4xl flex flex-col items-center justify-center">
           <h1 className="text-2xl font-bold mb-4">Bild zu Buch hochladen</h1>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-md" encType="multipart/form-data">
-            <div>
-              <label className="block font-semibold">ISBN*</label>
-              <input {...register('isbn', { required: 'ISBN ist erforderlich' })} className="border rounded px-2 py-1 w-full" />
-              {errors.isbn && <span className="text-red-500 text-sm">{errors.isbn.message as string}</span>}
-            </div>
-            <div>
-              <label className="block font-semibold">Bild*</label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-md flex flex-col" encType="multipart/form-data">
+            <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
+              <span className="label-text font-semibold">ISBN*</span>
+              <input {...register('isbn', { required: 'ISBN ist erforderlich' })} className="input input-bordered w-full max-w-xs" />
+              <span className="text-error mt-1 min-h-[20px] block">{errors.isbn ? errors.isbn.message as string : '\u00A0'}</span>
+            </label>
+            <div className="w-full" />
+            <label className="form-control w-full max-w-xs mb-4">
+              <span className="label-text font-semibold">Bild*</span>
               <input
                 type="file"
                 accept="image/*"
                 {...register('image', { required: 'Bild ist erforderlich' })}
                 onChange={handleImageChange}
-                className="border rounded px-2 py-1 w-full"
+                className="file-input file-input-bordered w-full max-w-xs"
                 ref={imageInputRef}
               />
-              {errors.image && <span className="text-red-500 text-sm">{errors.image.message as string}</span>}
-            </div>
-            <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
+              {errors.image && <span className="text-error mt-1">{errors.image.message as string}</span>}
+            </label>
+            {previewUrl && (
+              <div className="flex justify-center items-center my-4">
+                <img
+                  src={previewUrl}
+                  alt="Vorschau"
+                  className="rounded shadow border object-cover"
+                  style={{ width: '180px', height: '180px' }}
+                />
+              </div>
+            )}
+            <button type="submit" className="btn btn-error w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
           </form>
-          {preview && (
-            <div className="flex flex-col items-center mt-8">
-              <img src={preview} alt="Vorschau" className="max-h-[32rem] max-w-full rounded shadow border" />
-            </div>
-          )}
           {buchId && <div className="mt-2 text-green-400">Buch-ID: {buchId}</div>}
           {message && (
             <div>
@@ -146,6 +151,7 @@ const CreateImage = () => {
               <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setMessage(null)} />
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
