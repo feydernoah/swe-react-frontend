@@ -1,0 +1,20 @@
+' Preview durch <Alt>D
+
+@startuml Aktivitätsdiagramm_Bewertung
+
+title Aktivitätsdiagramm – Buch bewerten (inline)
+
+start
+
+:Suchergebnisse anzeigen;
+:Aktuelle Bewertung anzeigen (1-5 Sterne);
+
+:Neue Bewertung abgeben;
+:Neue Bewertung wird gesendet;
+
+:Backend aktualisiert Bewertung;
+:Sterne werden sofort aktualisiert (ohne Reload);
+
+stop
+
+@enduml
