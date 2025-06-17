@@ -138,6 +138,31 @@ const StarRating = ({ rating, onRatingChange, interactive }: { rating: number, o
   );
 };
 
+// Helper to render book image
+const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
+  const imgSrc = `https://localhost:3000/rest/file/${encodeURIComponent(bookId)}`;
+  const [error, setError] = useState(false);
+  return (
+    <div className="w-28 h-36 flex items-center justify-center bg-gray-900 rounded shadow border border-gray-700 overflow-hidden mr-4">
+      {!error ? (
+        <img
+          src={imgSrc}
+          alt={title ? `Cover von ${title}` : 'Buchcover'}
+          className="object-cover w-full h-full"
+          onError={() => setError(true)}
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center w-full h-full text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9 6 9-6" />
+          </svg>
+          <span className="text-xs">Kein Bild</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const SearchPage = () => {
   const { register, handleSubmit } = useForm<SearchFormInputs>();
   const [books, setBooks] = useState<Book[] | null>(null);
@@ -354,22 +379,33 @@ const SearchPage = () => {
               const entries = Object.entries(buch);
               const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
               return (
-                <li key={buch.id as string || idx} className="py-4 text-white">
-                  <div className="flex flex-wrap gap-x-8 gap-y-2 items-center mb-2">
-                    {renderBookFields(entries)}
-                  </div>
-                  {Array.isArray(schlagwoerter) && schlagwoerter.length > 0 && (
-                    <div className="mb-2">
-                      <div className="font-bold mb-1">Schlagwörter:</div>
-                      <div className="flex flex-wrap gap-2">
-                        {schlagwoerter.map((wort, i) => (
-                          <span key={wort + '-' + i} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-blue-400">{wort}</span>
-                        ))}
-                      </div>
+                <li key={typeof buch.id === 'string' ? buch.id : idx} className="py-4 text-white flex items-start">
+                  <BookImage
+                    bookId={typeof buch.id === 'string' ? buch.id : String(buch.id)}
+                    title={(() => {
+                      const t = buch.titel;
+                      if (typeof t === 'string') return t;
+                      if (t && typeof t === 'object' && 'titel' in t && typeof t.titel === 'string') return t.titel;
+                      return undefined;
+                    })()}
+                  />
+                  <div className="flex-1">
+                    <div className="flex flex-wrap gap-x-8 gap-y-2 items-center mb-2">
+                      {renderBookFields(entries)}
                     </div>
-                  )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                    {renderOtherFields(entries, handleRatingChange, buch.id as string)}
+                    {Array.isArray(schlagwoerter) && schlagwoerter.length > 0 && (
+                      <div className="mb-2">
+                        <div className="font-bold mb-1">Schlagwörter:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {schlagwoerter.map((wort, i) => (
+                            <span key={wort + '-' + i} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-blue-400">{wort}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
+                      {renderOtherFields(entries, handleRatingChange, buch.id as string)}
+                    </div>
                   </div>
                 </li>
               );
@@ -423,22 +459,33 @@ const SearchPage = () => {
             const entries = Object.entries(buch);
             const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
             return (
-              <li key={buch.id || idx} className="py-4 text-white">
-                <div className="flex flex-wrap gap-x-8 gap-y-2 items-center mb-2">
-                  {renderBookFields(entries)}
-                </div>
-                {Array.isArray(schlagwoerter) && schlagwoerter.length > 0 && (
-                  <div className="mb-2">
-                    <div className="font-bold mb-1">Schlagwörter:</div>
-                    <div className="flex flex-wrap gap-2">
-                      {schlagwoerter.map((wort, i) => (
-                        <span key={wort + '-' + i} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-blue-400">{wort}</span>
-                      ))}
-                    </div>
+              <li key={buch.id || idx} className="py-4 text-white flex items-start">
+                <BookImage
+                  bookId={buch.id}
+                  title={(() => {
+                    const t = buch.titel;
+                    if (typeof t === 'string') return t;
+                    if (t && typeof t === 'object' && 'titel' in t && typeof t.titel === 'string') return t.titel;
+                    return undefined;
+                  })()}
+                />
+                <div className="flex-1">
+                  <div className="flex flex-wrap gap-x-8 gap-y-2 items-center mb-2">
+                    {renderBookFields(entries)}
                   </div>
-                )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                  {renderOtherFields(entries, handleRatingChange, buch.id)}
+                  {Array.isArray(schlagwoerter) && schlagwoerter.length > 0 && (
+                    <div className="mb-2">
+                      <div className="font-bold mb-1">Schlagwörter:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {schlagwoerter.map((wort, i) => (
+                          <span key={wort + '-' + i} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-blue-400">{wort}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
+                    {renderOtherFields(entries, handleRatingChange, buch.id)}
+                  </div>
                 </div>
               </li>
             );

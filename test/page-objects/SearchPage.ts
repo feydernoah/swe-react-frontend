@@ -13,7 +13,7 @@ export class SearchPage {
     this.queryInput = page.locator('#query');
     this.artSelect = page.locator('#art');
     this.submitButton = page.locator('button[type="submit"]');
-    this.resultList = page.locator('ul.divide-y'); // Updated: select the actual result list
+    this.resultList = page.locator('ul.divide-y');
     this.errorBox = page.locator('div.text-red-400');
   }
 
