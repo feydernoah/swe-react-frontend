@@ -449,31 +449,25 @@ const SearchPage = () => {
   };
 
   return (
-    <div className="app-bg flex-1 flex flex-col items-center justify-center">
-      <h2 className="text-3xl font-bold mb-6 text-white">Buchsuche</h2>
-      <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="flex flex-col items-center gap-4 w-full max-w-2xl bg-gray-800 rounded-lg p-6 shadow-lg">
-        <div className="w-full">
-          <label htmlFor="query" className="block text-sm font-medium text-white mb-2">Buch ID oder ISBN:</label>
-          <div className="flex gap-2 mb-2">
-            <input
-              id="query"
-              type="text"
-              {...register('query')}
-              className="flex-1 rounded-lg p-3 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-              placeholder="Geben Sie die Buch-ID oder ISBN ein"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition-colors duration-150"
-            >
-              Suchen
-            </button>
-          </div>
-          <label htmlFor="art" className="block text-sm font-medium text-white mb-2 mt-2">Buchtyp:</label>
+    <div data-theme="black" className="bg-primary min-h-screen flex flex-col items-center justify-center">
+      <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="bg-base-100 rounded-lg p-8 shadow-lg flex flex-col items-center w-full max-w-md">
+        <h2 className="text-3xl font-bold mb-6 text-white">Buchsuche</h2>
+        <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
+          <span className="label-text font-semibold">Buch ID oder ISBN</span>
+          <input
+            id="query"
+            type="text"
+            {...register('query')}
+            className="input input-bordered w-full max-w-xs"
+            placeholder="Geben Sie die Buch-ID oder ISBN ein"
+          />
+        </label>
+        <label className="form-control w-full max-w-xs mb-4">
+          <span className="label-text font-semibold">Buchtyp</span>
           <select
             id="art"
             {...register('art')}
-            className="rounded-lg p-3 bg-gray-700 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            className="select select-bordered w-full max-w-xs"
             defaultValue=""
           >
             <option value="">Alle Typen</option>
@@ -481,14 +475,20 @@ const SearchPage = () => {
             <option value="HARDCOVER">HARDCOVER</option>
             <option value="PAPERBACK">PAPERBACK</option>
           </select>
-        </div>
+        </label>
+        <button
+          type="submit"
+          className="btn btn-info w-full"
+        >
+          Suchen
+        </button>
         {error && (
-          <div className="text-red-400 text-sm text-center">
+          <div className="text-error text-sm text-center">
             {error}
           </div>
         )}
         {loading && (
-          <div className="text-white text-sm text-center">
+          <div className="text-info text-sm text-center">
             Lade Bücher...
           </div>
         )}

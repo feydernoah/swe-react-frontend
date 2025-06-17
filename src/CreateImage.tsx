@@ -15,20 +15,12 @@ const CreateImage = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [buchId, setBuchId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     setValue('image', files as FileList, { shouldValidate: true });
     trigger('image');
-    if (files && files[0]) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setPreviewUrl(ev.target?.result as string);
-      reader.readAsDataURL(files[0]);
-    } else {
-      setPreviewUrl(null);
-    }
   };
 
   const onSubmit = async (data: ImageFormData) => {
@@ -102,10 +94,10 @@ const CreateImage = () => {
         <div className="p-8 w-full max-w-4xl flex flex-col items-center justify-center">
           <h1 className="text-2xl font-bold mb-4">Bild zu Buch hochladen</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-md flex flex-col" encType="multipart/form-data">
-            <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
+            <label className="form-control w-full max-w-xs mb-4">
               <span className="label-text font-semibold">ISBN*</span>
               <input {...register('isbn', { required: 'ISBN ist erforderlich' })} className="input input-bordered w-full max-w-xs" />
-              <span className="text-error mt-1 min-h-[20px] block">{errors.isbn ? errors.isbn.message as string : '\u00A0'}</span>
+              {errors.isbn && <span className="text-error mt-1">{errors.isbn.message as string}</span>}
             </label>
             <div className="w-full" />
             <label className="form-control w-full max-w-xs mb-4">
@@ -120,26 +112,15 @@ const CreateImage = () => {
               />
               {errors.image && <span className="text-error mt-1">{errors.image.message as string}</span>}
             </label>
-            {previewUrl && (
-              <div className="flex justify-center items-center my-4">
-                <img
-                  src={previewUrl}
-                  alt="Vorschau"
-                  className="rounded shadow border object-cover"
-                  style={{ width: '180px', height: '180px' }}
-                />
-              </div>
-            )}
             <button type="submit" className="btn btn-error w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
           </form>
-          {buchId && <div className="mt-2 text-green-400">Buch-ID: {buchId}</div>}
           {message && (
             <div>
               <div className="fixed inset-0 flex items-center justify-center z-50">
                 <div className="bg-red-600 text-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
                   <div className="mb-4 text-lg font-semibold">{message}</div>
                   <button
-                    className="mt-2 px-4 py-2 bg-white text-red-700 rounded hover:bg-gray-100 font-bold"
+                    className="btn btn-accent"
                     onClick={() => setMessage(null)}
                     autoFocus
                     type="button"
@@ -148,7 +129,6 @@ const CreateImage = () => {
                   </button>
                 </div>
               </div>
-              <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setMessage(null)} />
             </div>
           )}
         </div>
