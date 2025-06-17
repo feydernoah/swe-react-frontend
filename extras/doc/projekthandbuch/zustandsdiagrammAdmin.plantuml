@@ -2,8 +2,6 @@
 
 @startuml Admin Page Flow
 
-title Admin Page Flow
-
 [*] --> BuchAnlegen : Menüpunkt "Anlegen"
 [*] --> BildAnlegen : Menüpunkt "Bild Anlegen"
 [*] --> SucheBuecher : Menüpunkt "Suche"

@@ -2,7 +2,7 @@
 
 @startuml Aktivitätsdiagramm_BildHinzufuegen
 
-title Aktivitätsdiagramm – Bild zu Buch hinzufügen (Admin)
+title Aktivitätsdiagramm – Bild zu Buch hinzufügen
 
 start
 

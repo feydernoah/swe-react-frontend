@@ -2,7 +2,7 @@
 
 @startuml Aktivitätsdiagramm_Bewertung
 
-title Aktivitätsdiagramm – Buch bewerten (inline)
+title Aktivitätsdiagramm – Buch bewerten
 
 start
 

@@ -2,7 +2,7 @@
 
 @startuml Aktivitätsdiagramm_BuchAnlegen
 
-title Aktivitätsdiagramm – Buch neu anlegen (Admin)
+title Aktivitätsdiagramm – Buch neu anlegen
 
 start
 
