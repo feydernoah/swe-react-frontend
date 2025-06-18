@@ -14,11 +14,13 @@ interface Book {
   datum: string;
   homepage: string;
   schlagwoerter?: string[];
-  abbildungen?: Array<{ contentType: string; beschriftung?: string; }>; // optional, as in backend
-  titel: string | {
-    titel: string;
-    untertitel?: string;
-  };
+  abbildungen?: Array<{ contentType: string; beschriftung?: string }>; // optional, as in backend
+  titel:
+    | string
+    | {
+        titel: string;
+        untertitel?: string;
+      };
   // Add any other fields as needed from backend DTOs
 }
 
@@ -34,27 +36,39 @@ const renderBookFields = (entries: [string, unknown][]) => {
     if (key.toLowerCase() === 'schlagwoerter') return null;
     if (key === 'id') {
       return (
-        <div key={key}><span className="font-bold capitalize">Id:</span> {String(value)}</div>
+        <div key={key}>
+          <span className="font-bold capitalize">Id:</span> {String(value)}
+        </div>
       );
     }
     if (key === 'titel') {
       if (typeof value === 'string' || typeof value === 'number') {
         return (
-          <div key={key}><span className="font-bold capitalize">Titel:</span> {value}</div>
+          <div key={key}>
+            <span className="font-bold capitalize">Titel:</span> {value}
+          </div>
         );
       } else if (value && typeof value === 'object') {
         const titelObj = value as Record<string, unknown>;
         return [
           typeof titelObj.titel === 'string' && (
-            <div key="titelText"><span className="font-bold capitalize">Titel:</span> {titelObj.titel}</div>
+            <div key="titelText">
+              <span className="font-bold capitalize">Titel:</span>{' '}
+              {titelObj.titel}
+            </div>
           ),
           typeof titelObj.untertitel === 'string' && (
-            <div key="untertitelText"><span className="font-bold capitalize">Untertitel:</span> {titelObj.untertitel}</div>
-          )
+            <div key="untertitelText">
+              <span className="font-bold capitalize">Untertitel:</span>{' '}
+              {titelObj.untertitel}
+            </div>
+          ),
         ].filter(Boolean);
       } else {
         return (
-          <div key={key}><span className="font-bold capitalize">Titel:</span> {String(value)}</div>
+          <div key={key}>
+            <span className="font-bold capitalize">Titel:</span> {String(value)}
+          </div>
         );
       }
     }
@@ -63,18 +77,29 @@ const renderBookFields = (entries: [string, unknown][]) => {
 };
 
 // Helper to render other fields
-const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookId: string, newRating: number) => void, bookId?: string) => {
+const renderOtherFields = (
+  entries: [string, unknown][],
+  onRatingChange?: (bookId: string, newRating: number) => void,
+  bookId?: string,
+) => {
   const username = Cookies.get('username');
   return entries.map(([key, value]) => {
-    if ([
-      'id', 'titel'
-    ].includes(key) || key.toLowerCase() === 'schlagwoerter') return null;
+    if (['id', 'titel'].includes(key) || key.toLowerCase() === 'schlagwoerter')
+      return null;
     if (key.toLowerCase() === 'rating' && typeof value === 'number' && bookId) {
       const isAdmin = username === 'admin';
       return (
         <div key={key} className="flex items-center gap-2">
           <span className="font-bold capitalize">Bewertung:</span>
-          <StarRating rating={value} onRatingChange={isAdmin ? (r) => onRatingChange && onRatingChange(bookId, r) : undefined} interactive={isAdmin} />
+          <StarRating
+            rating={value}
+            onRatingChange={
+              isAdmin
+                ? (r) => onRatingChange && onRatingChange(bookId, r)
+                : undefined
+            }
+            interactive={isAdmin}
+          />
         </div>
       );
     }
@@ -85,12 +110,16 @@ const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookI
         if (!isNaN(num)) {
           const percent = (num * 100).toFixed(1).replace(/\.0$/, '');
           return (
-            <div key={key}><span className="font-bold capitalize">Rabatt:</span> {percent}%</div>
+            <div key={key}>
+              <span className="font-bold capitalize">Rabatt:</span> {percent}%
+            </div>
           );
         }
       }
       return (
-        <div key={key}><span className="font-bold capitalize">{key}:</span> {value}</div>
+        <div key={key}>
+          <span className="font-bold capitalize">{key}:</span> {value}
+        </div>
       );
     }
     if (Array.isArray(value)) {
@@ -99,7 +128,14 @@ const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookI
           <span className="font-bold capitalize">{key}:</span>
           <div className="flex flex-wrap gap-2 mt-1">
             {value.map((item, idx) => (
-              <span key={idx} className="bg-neutral text-primary-content px-2 py-1 rounded text-xs">{typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}</span>
+              <span
+                key={idx}
+                className="bg-neutral text-primary-content px-2 py-1 rounded text-xs"
+              >
+                {typeof item === 'object'
+                  ? JSON.stringify(item, null, 2)
+                  : String(item)}
+              </span>
             ))}
           </div>
         </div>
@@ -119,7 +155,15 @@ const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookI
   });
 };
 
-const StarRating = ({ rating, onRatingChange, interactive }: { rating: number, onRatingChange?: (newRating: number) => void, interactive?: boolean }) => {
+const StarRating = ({
+  rating,
+  onRatingChange,
+  interactive,
+}: {
+  rating: number;
+  onRatingChange?: (newRating: number) => void;
+  interactive?: boolean;
+}) => {
   const [hovered, setHovered] = useState<number | null>(null);
   return (
     <div className="flex items-center gap-1">
@@ -128,7 +172,11 @@ const StarRating = ({ rating, onRatingChange, interactive }: { rating: number, o
           key={star}
           type="button"
           className="focus:outline-none"
-          onClick={interactive && onRatingChange ? () => onRatingChange(star) : undefined}
+          onClick={
+            interactive && onRatingChange
+              ? () => onRatingChange(star)
+              : undefined
+          }
           onMouseEnter={interactive ? () => setHovered(star) : undefined}
           onMouseLeave={interactive ? () => setHovered(null) : undefined}
           aria-label={`Set rating to ${star}`}
@@ -138,7 +186,15 @@ const StarRating = ({ rating, onRatingChange, interactive }: { rating: number, o
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill={(hovered !== null && interactive ? star <= hovered : star <= rating) ? '#facc15' : '#374151'}
+            fill={
+              (
+                hovered !== null && interactive
+                  ? star <= hovered
+                  : star <= rating
+              )
+                ? '#facc15'
+                : '#374151'
+            }
             className="w-6 h-6 transition-colors duration-150"
           >
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
@@ -150,7 +206,7 @@ const StarRating = ({ rating, onRatingChange, interactive }: { rating: number, o
 };
 
 // Helper to render book image
-const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
+const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
   const imgSrc = `https://localhost:3000/rest/file/${encodeURIComponent(bookId)}`;
   const [error, setError] = useState(false);
   return (
@@ -164,8 +220,19 @@ const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
         />
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full text-neutral-content">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9 6 9-6" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-10 w-10 mb-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9 6 9-6"
+            />
           </svg>
           <span className="text-xs">Kein Bild</span>
         </div>
@@ -175,21 +242,29 @@ const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
 };
 
 const SearchPage = () => {
-  const { register, handleSubmit, setValue, watch, getValues } = useForm<SearchFormInputs>({
-    defaultValues: { rating: undefined }
-  });
+  const { register, handleSubmit, setValue, watch, getValues } =
+    useForm<SearchFormInputs>({
+      defaultValues: { rating: undefined },
+    });
   const [books, setBooks] = useState<Book[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [lastSearchAll, setLastSearchAll] = useState(false);
-  const [lastSearchInput, setLastSearchInput] = useState<SearchFormInputs>({ query: '', art: '' });
+  const [lastSearchInput, setLastSearchInput] = useState<SearchFormInputs>({
+    query: '',
+    art: '',
+  });
   const [bookEtags, setBookEtags] = useState<Record<string, string>>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const selectedRating = watch('rating');
 
-  const onSubmit = async (data: SearchFormInputs, pageOverride?: number, pageSizeOverride?: number) => {
+  const onSubmit = async (
+    data: SearchFormInputs,
+    pageOverride?: number,
+    pageSizeOverride?: number,
+  ) => {
     // Use getValues to get the latest rating value
     const formValues = getValues();
     // Accept both string and number for rating
@@ -199,7 +274,10 @@ const SearchPage = () => {
       formValues.rating !== null &&
       !(typeof formValues.rating === 'string' && formValues.rating === '')
     ) {
-      rating = typeof formValues.rating === 'string' ? Number(formValues.rating) : formValues.rating;
+      rating =
+        typeof formValues.rating === 'string'
+          ? Number(formValues.rating)
+          : formValues.rating;
     }
     setLastSearchInput({ ...data, rating });
     setLoading(true);
@@ -212,7 +290,8 @@ const SearchPage = () => {
     if (isAllBooks && typeof pageOverride !== 'number') setPage(0);
     try {
       let url = 'https://localhost:3000/rest';
-      const isbnRegex = /^(97(8|9)[- ]?)?\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/i;
+      const isbnRegex =
+        /^(97(8|9)[- ]?)?\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/i;
       const params = new URLSearchParams();
       if (input) {
         if (isbnRegex.test(input)) {
@@ -228,8 +307,10 @@ const SearchPage = () => {
         params.append('rating', String(rating));
       }
       if (isAllBooks) {
-        const pageParam = (typeof pageOverride === 'number' ? pageOverride : page) + 1;
-        const sizeParam = typeof pageSizeOverride === 'number' ? pageSizeOverride : pageSize;
+        const pageParam =
+          (typeof pageOverride === 'number' ? pageOverride : page) + 1;
+        const sizeParam =
+          typeof pageSizeOverride === 'number' ? pageSizeOverride : pageSize;
         params.append('page', String(pageParam));
         params.append('size', String(sizeParam));
       }
@@ -244,7 +325,11 @@ const SearchPage = () => {
       }
       if (res.status === 304 || res.status === 204) {
         setBooks([]);
-        setError(res.status === 304 ? 'Keine neuen Daten (304 Not Modified) und kein Buch im Body.' : 'Kein Buch gefunden (204 No Content).');
+        setError(
+          res.status === 304
+            ? 'Keine neuen Daten (304 Not Modified) und kein Buch im Body.'
+            : 'Kein Buch gefunden (204 No Content).',
+        );
         return;
       }
       if (!res.ok) {
@@ -252,7 +337,9 @@ const SearchPage = () => {
         try {
           const errorResult = await res.json();
           errorText = errorResult?.message || errorResult?.error || errorText;
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
         setBooks([]);
         setError(errorText);
         return;
@@ -269,8 +356,14 @@ const SearchPage = () => {
           etags[result.id] = etag;
         }
       }
-      setBookEtags(prev => ({ ...prev, ...etags }));
-      setBooks(Array.isArray(result) ? result : (result && typeof result === 'object' ? [result] : []));
+      setBookEtags((prev) => ({ ...prev, ...etags }));
+      setBooks(
+        Array.isArray(result)
+          ? result
+          : result && typeof result === 'object'
+            ? [result]
+            : [],
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
     } finally {
@@ -303,12 +396,16 @@ const SearchPage = () => {
     if (books && books.length > 0) {
       // Check if paginated (books[0].content is an array)
       const firstBook = books[0] as unknown;
-      const isPaginated = typeof firstBook === 'object' && firstBook !== null && 'content' in firstBook && Array.isArray((firstBook as { content?: unknown }).content);
+      const isPaginated =
+        typeof firstBook === 'object' &&
+        firstBook !== null &&
+        'content' in firstBook &&
+        Array.isArray((firstBook as { content?: unknown }).content);
       if (isPaginated) {
         const contentBooks = (firstBook as { content: Book[] }).content;
-        bookToUpdate = contentBooks.find(b => b.id === bookId);
+        bookToUpdate = contentBooks.find((b) => b.id === bookId);
       } else {
-        bookToUpdate = books.find(b => b.id === bookId);
+        bookToUpdate = books.find((b) => b.id === bookId);
       }
     }
     if (!bookToUpdate) {
@@ -324,32 +421,41 @@ const SearchPage = () => {
     if (!etag) {
       // Fetch ETag for this book
       try {
-        const res = await fetch(`https://localhost:3000/rest/${encodeURIComponent(bookId)}`);
+        const res = await fetch(
+          `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
+        );
         if (!res.ok) throw new Error('Fehler beim Nachladen des ETags');
         const fetchedEtag = res.headers.get('etag');
         if (fetchedEtag) {
           etag = fetchedEtag;
-          setBookEtags(prev => ({ ...prev, [bookId]: fetchedEtag }));
+          setBookEtags((prev) => ({ ...prev, [bookId]: fetchedEtag }));
         }
       } catch {
-        setError('ETag für das Buch nicht gefunden. Bitte laden Sie die Seite neu.');
+        setError(
+          'ETag für das Buch nicht gefunden. Bitte laden Sie die Seite neu.',
+        );
         return;
       }
     }
     if (!etag) {
-      setError('ETag für das Buch nicht gefunden. Bitte laden Sie die Seite neu.');
+      setError(
+        'ETag für das Buch nicht gefunden. Bitte laden Sie die Seite neu.',
+      );
       return;
     }
     try {
-      const res = await fetch(`https://localhost:3000/rest/${encodeURIComponent(bookId)}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'If-Match': etag,
+      const res = await fetch(
+        `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'If-Match': etag,
+          },
+          body: JSON.stringify(fullBook),
         },
-        body: JSON.stringify(fullBook)
-      });
+      );
       if (!res.ok) {
         let errorText = 'Fehler beim Aktualisieren der Bewertung';
         try {
@@ -357,7 +463,8 @@ const SearchPage = () => {
           if (errorResult && (errorResult.message || errorResult.error)) {
             errorText = errorResult.message || errorResult.error;
           }
-        } catch {//
+        } catch {
+          //
         }
         setError(errorText);
         return;
@@ -365,20 +472,34 @@ const SearchPage = () => {
       setBooks((prev) => {
         if (!prev) return prev;
         // Handle paginated and non-paginated
-        const isPaginated = prev.length === 1 && prev[0] && typeof prev[0] === 'object' && 'content' in prev[0] && Array.isArray((prev[0] as unknown as { content?: unknown }).content);
+        const isPaginated =
+          prev.length === 1 &&
+          prev[0] &&
+          typeof prev[0] === 'object' &&
+          'content' in prev[0] &&
+          Array.isArray((prev[0] as unknown as { content?: unknown }).content);
         if (isPaginated) {
-          const paginated = prev[0] as unknown as { content: Array<Record<string, unknown>>; [key: string]: unknown };
-          const updatedContent = paginated.content.map(b => b.id === bookId ? { ...b, rating: newRating } : b);
-          return [{ ...paginated, content: updatedContent }] as unknown as Book[];
+          const paginated = prev[0] as unknown as {
+            content: Array<Record<string, unknown>>;
+            [key: string]: unknown;
+          };
+          const updatedContent = paginated.content.map((b) =>
+            b.id === bookId ? { ...b, rating: newRating } : b,
+          );
+          return [
+            { ...paginated, content: updatedContent },
+          ] as unknown as Book[];
         } else {
           // Update in flat array
-          return prev.map(b => b.id === bookId ? { ...b, rating: newRating } : b);
+          return prev.map((b) =>
+            b.id === bookId ? { ...b, rating: newRating } : b,
+          );
         }
       });
       // Update ETag if present in response
       const newEtag = res.headers.get('etag');
       if (newEtag) {
-        setBookEtags(prev => ({ ...prev, [bookId]: newEtag }));
+        setBookEtags((prev) => ({ ...prev, [bookId]: newEtag }));
       }
     } catch {
       setError('Fehler beim Aktualisieren der Bewertung');
@@ -394,12 +515,15 @@ const SearchPage = () => {
       return;
     }
     try {
-      const res = await fetch(`https://localhost:3000/rest/${encodeURIComponent(bookId)}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
+      const res = await fetch(
+        `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       if (!res.ok && res.status !== 204) {
         setError('Fehler beim Löschen des Buchs');
         return;
@@ -407,13 +531,25 @@ const SearchPage = () => {
       setBooks((prev) => {
         if (!prev) return prev;
         // Handle paginated and non-paginated
-        const isPaginated = prev.length === 1 && prev[0] && typeof prev[0] === 'object' && 'content' in prev[0] && Array.isArray((prev[0] as unknown as { content?: unknown }).content);
+        const isPaginated =
+          prev.length === 1 &&
+          prev[0] &&
+          typeof prev[0] === 'object' &&
+          'content' in prev[0] &&
+          Array.isArray((prev[0] as unknown as { content?: unknown }).content);
         if (isPaginated) {
-          const paginated = prev[0] as unknown as { content: Array<Record<string, unknown>>; [key: string]: unknown };
-          const updatedContent = paginated.content.filter((b) => (typeof b.id === 'string' ? b.id : String(b.id)) !== bookId);
-          return [{ ...paginated, content: updatedContent }] as unknown as Book[];
+          const paginated = prev[0] as unknown as {
+            content: Array<Record<string, unknown>>;
+            [key: string]: unknown;
+          };
+          const updatedContent = paginated.content.filter(
+            (b) => (typeof b.id === 'string' ? b.id : String(b.id)) !== bookId,
+          );
+          return [
+            { ...paginated, content: updatedContent },
+          ] as unknown as Book[];
         } else {
-          return prev.filter(b => b.id !== bookId);
+          return prev.filter((b) => b.id !== bookId);
         }
       });
     } catch {
@@ -425,42 +561,82 @@ const SearchPage = () => {
   const renderBooks = () => {
     if (!books) return null;
     if (books.length === 0) {
-      return <div className="text-primary-content mt-8">Keine Bücher gefunden oder ungültige Antwort.</div>;
+      return (
+        <div className="text-primary-content mt-8">
+          Keine Bücher gefunden oder ungültige Antwort.
+        </div>
+      );
     }
     const username = Cookies.get('username');
     const isAdmin = username === 'admin';
     // Paginated response
-    const maybePaginated = books.length === 1 && books[0] && typeof books[0] === 'object' && 'content' in books[0] && Array.isArray((books[0] as unknown as Record<string, unknown>).content);
+    const maybePaginated =
+      books.length === 1 &&
+      books[0] &&
+      typeof books[0] === 'object' &&
+      'content' in books[0] &&
+      Array.isArray((books[0] as unknown as Record<string, unknown>).content);
     if (maybePaginated) {
       const paginated = books[0] as unknown as Record<string, unknown>;
       const contentBooks = paginated.content as Array<Record<string, unknown>>;
       const pageInfo = paginated.page as Record<string, unknown> | undefined;
       return (
         <div className="mt-8 w-full max-w-2xl bg-base-100 rounded-lg p-6 shadow-lg">
-          <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">Gefundene Bücher:</h3>
+          <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">
+            Gefundene Bücher:
+          </h3>
           <ul className="divide-y divide-base-300">
             {contentBooks.map((buch, idx) => {
               const entries = Object.entries(buch);
-              const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
+              const schlagwoerter = entries.find(
+                ([key]) => key.toLowerCase() === 'schlagwoerter',
+              )?.[1] as string[] | undefined;
               return (
-                <li key={typeof buch.id === 'string' ? buch.id : idx} className="py-4 text-primary-content flex items-start relative">
+                <li
+                  key={typeof buch.id === 'string' ? buch.id : idx}
+                  className="py-4 text-primary-content flex items-start relative"
+                >
                   {isAdmin && (
                     <button
                       title="Buch löschen"
-                      onClick={() => handleDeleteBook(typeof buch.id === 'string' ? buch.id : String(buch.id))}
+                      onClick={() =>
+                        handleDeleteBook(
+                          typeof buch.id === 'string'
+                            ? buch.id
+                            : String(buch.id),
+                        )
+                      }
                       className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-error group"
                     >
-                      <svg className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   )}
                   <BookImage
-                    bookId={typeof buch.id === 'string' ? buch.id : String(buch.id)}
+                    bookId={
+                      typeof buch.id === 'string' ? buch.id : String(buch.id)
+                    }
                     title={(() => {
                       const t = buch.titel;
                       if (typeof t === 'string') return t;
-                      if (t && typeof t === 'object' && 'titel' in t && typeof t.titel === 'string') return t.titel;
+                      if (
+                        t &&
+                        typeof t === 'object' &&
+                        'titel' in t &&
+                        typeof t.titel === 'string'
+                      )
+                        return t.titel;
                       return undefined;
                     })()}
                   />
@@ -468,18 +644,28 @@ const SearchPage = () => {
                     <div className="flex flex-wrap gap-x-8 gap-y-2 items-center mb-2">
                       {renderBookFields(entries)}
                     </div>
-                    {Array.isArray(schlagwoerter) && schlagwoerter.length > 0 && (
-                      <div className="mb-2">
-                        <div className="font-bold mb-1">Schlagwörter:</div>
-                        <div className="flex flex-wrap gap-2">
-                          {schlagwoerter.map((wort, i) => (
-                            <span key={wort + '-' + i} className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-accent/50">{wort}</span>
-                          ))}
+                    {Array.isArray(schlagwoerter) &&
+                      schlagwoerter.length > 0 && (
+                        <div className="mb-2">
+                          <div className="font-bold mb-1">Schlagwörter:</div>
+                          <div className="flex flex-wrap gap-2">
+                            {schlagwoerter.map((wort, i) => (
+                              <span
+                                key={wort + '-' + i}
+                                className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-accent/50"
+                              >
+                                {wort}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                      {renderOtherFields(entries, handleRatingChange, buch.id as string)}
+                      {renderOtherFields(
+                        entries,
+                        handleRatingChange,
+                        buch.id as string,
+                      )}
                     </div>
                   </div>
                 </li>
@@ -488,33 +674,55 @@ const SearchPage = () => {
           </ul>
           {pageInfo && (
             <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between text-neutral-content text-sm gap-2">
-              <span>Seite: {typeof pageInfo.number === 'number' ? (pageInfo.number + 1) : ''} / {pageInfo.totalPages as number} &nbsp; (insgesamt {pageInfo.totalElements as number} Bücher)</span>
+              <span>
+                Seite:{' '}
+                {typeof pageInfo.number === 'number' ? pageInfo.number + 1 : ''}{' '}
+                / {pageInfo.totalPages as number} &nbsp; (insgesamt{' '}
+                {pageInfo.totalElements as number} Bücher)
+              </span>
               <div className="flex gap-2 mt-2 sm:mt-0 items-center">
                 <button
                   className="px-3 py-1 rounded bg-info text-info-content disabled:opacity-50"
-                  disabled={typeof pageInfo.number !== 'number' || pageInfo.number <= 0}
-                  onClick={() => handlePageChange((pageInfo.number as number) - 1)}
+                  disabled={
+                    typeof pageInfo.number !== 'number' || pageInfo.number <= 0
+                  }
+                  onClick={() =>
+                    handlePageChange((pageInfo.number as number) - 1)
+                  }
                 >
                   Zurück
                 </button>
                 <button
                   className="px-3 py-1 rounded bg-info text-info-content disabled:opacity-50"
-                  disabled={typeof pageInfo.number !== 'number' || (pageInfo.number as number) >= (pageInfo.totalPages as number) - 1}
-                  onClick={() => handlePageChange((pageInfo.number as number) + 1)}
+                  disabled={
+                    typeof pageInfo.number !== 'number' ||
+                    (pageInfo.number as number) >=
+                      (pageInfo.totalPages as number) - 1
+                  }
+                  onClick={() =>
+                    handlePageChange((pageInfo.number as number) + 1)
+                  }
                 >
                   Weiter
                 </button>
                 {lastSearchAll && (
                   <div className="flex items-center gap-2 ml-4">
-                    <label htmlFor="pageSizeBottom" className="text-primary-content">Pro Seite:</label>
+                    <label
+                      htmlFor="pageSizeBottom"
+                      className="text-primary-content"
+                    >
+                      Pro Seite:
+                    </label>
                     <select
                       id="pageSizeBottom"
                       className="rounded p-2 bg-base-100 text-primary-content"
                       value={pageSize}
                       onChange={handlePageSizeChange}
                     >
-                      {[5, 10, 20, 50].map(size => (
-                        <option key={size} value={size}>{size}</option>
+                      {[5, 10, 20, 50].map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -528,21 +736,38 @@ const SearchPage = () => {
     // Default: render books as before
     return (
       <div className="mt-8 w-full max-w-2xl bg-primary rounded-lg p-6 shadow-lg">
-        <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">Gefundene Bücher:</h3>
+        <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">
+          Gefundene Bücher:
+        </h3>
         <ul className="divide-y divide-base-300">
           {books.map((buch, idx) => {
             const entries = Object.entries(buch);
-            const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
+            const schlagwoerter = entries.find(
+              ([key]) => key.toLowerCase() === 'schlagwoerter',
+            )?.[1] as string[] | undefined;
             return (
-              <li key={buch.id || idx} className="py-4 text-primary-content flex items-start relative">
+              <li
+                key={buch.id || idx}
+                className="py-4 text-primary-content flex items-start relative"
+              >
                 {isAdmin && (
                   <button
                     title="Buch löschen"
                     onClick={() => handleDeleteBook(buch.id)}
                     className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-error group"
                   >
-                    <svg className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 )}
@@ -551,7 +776,13 @@ const SearchPage = () => {
                   title={(() => {
                     const t = buch.titel;
                     if (typeof t === 'string') return t;
-                    if (t && typeof t === 'object' && 'titel' in t && typeof t.titel === 'string') return t.titel;
+                    if (
+                      t &&
+                      typeof t === 'object' &&
+                      'titel' in t &&
+                      typeof t.titel === 'string'
+                    )
+                      return t.titel;
                     return undefined;
                   })()}
                 />
@@ -564,7 +795,12 @@ const SearchPage = () => {
                       <div className="font-bold mb-1">Schlagwörter:</div>
                       <div className="flex flex-wrap gap-2">
                         {schlagwoerter.map((wort, i) => (
-                          <span key={wort + '-' + i} className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-accent/50">{wort}</span>
+                          <span
+                            key={wort + '-' + i}
+                            className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-accent/50"
+                          >
+                            {wort}
+                          </span>
                         ))}
                       </div>
                     </div>
@@ -582,9 +818,17 @@ const SearchPage = () => {
   };
 
   return (
-    <div data-theme="black" className="bg-primary min-h-screen flex flex-col items-center justify-center">
-      <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="bg-base-100 rounded-lg p-8 shadow-lg flex flex-col items-center w-full max-w-md">
-        <h2 className="text-3xl font-bold mb-6 text-primary-content">Buchsuche</h2>
+    <div
+      data-theme="black"
+      className="bg-primary min-h-screen flex flex-col items-center justify-center"
+    >
+      <form
+        onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))}
+        className="bg-base-100 rounded-lg p-8 shadow-lg flex flex-col items-center w-full max-w-md"
+      >
+        <h2 className="text-3xl font-bold mb-6 text-primary-content">
+          Buchsuche
+        </h2>
         <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
           <span className="label-text font-semibold">Buch ID oder ISBN</span>
           <input
@@ -604,10 +848,25 @@ const SearchPage = () => {
             aria-controls="filters-panel"
           >
             <span className="text-primary-content">Filter</span>
-            <svg className={`w-5 h-5 transition-transform text-primary-content ${filtersOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            <svg
+              className={`w-5 h-5 transition-transform text-primary-content ${filtersOpen ? 'rotate-90' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
           </button>
           {filtersOpen && (
-            <div id="filters-panel" className="mt-4 p-4 rounded bg-primary flex flex-col gap-4 animate-fade-in">
+            <div
+              id="filters-panel"
+              className="mt-4 p-4 rounded bg-primary flex flex-col gap-4 animate-fade-in"
+            >
               <label className="form-control w-full">
                 <span className="label-text font-semibold">Buchtyp</span>
                 <select
@@ -623,10 +882,15 @@ const SearchPage = () => {
                 </select>
               </label>
               <div className="form-control w-full">
-                <span className="label-text font-semibold mb-2">Bewertung (mindestens)</span>
+                <span className="label-text font-semibold mb-2">
+                  Bewertung (mindestens)
+                </span>
                 <div className="flex flex-col gap-2 items-start">
-                  {[1,2,3,4,5].map((star) => (
-                    <label key={star} className="flex flex-row items-center cursor-pointer gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <label
+                      key={star}
+                      className="flex flex-row items-center cursor-pointer gap-2"
+                    >
                       <input
                         type="radio"
                         value={star}
@@ -654,21 +918,12 @@ const SearchPage = () => {
             </div>
           )}
         </div>
-        <button
-          type="submit"
-          className="btn btn-accent w-full"
-        >
+        <button type="submit" className="btn btn-accent w-full">
           Suchen
         </button>
-        {error && (
-          <div className="text-error text-sm text-center">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-error text-sm text-center">{error}</div>}
         {loading && (
-          <div className="text-info text-sm text-center">
-            Lade Bücher...
-          </div>
+          <div className="text-info text-sm text-center">Lade Bücher...</div>
         )}
       </form>
       {renderBooks()}

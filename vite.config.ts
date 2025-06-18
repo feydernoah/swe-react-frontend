@@ -1,15 +1,12 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import fs from 'fs';
 import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss()
-  ],
+  plugins: [react(), tailwindcss()],
   server: {
     https: {
       key: fs.readFileSync(path.resolve(__dirname, '.cert/key.pem')),
@@ -17,4 +14,4 @@ export default defineConfig({
     },
     port: 3001, // Change Vite dev server to run on 3001
   },
-})
+});

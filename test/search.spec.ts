@@ -8,13 +8,17 @@ test.describe('Buchsuche', () => {
     await searchPage.search('unbekannte-id-123', '');
     await expect(searchPage.errorText).toBeVisible();
     const errorText = await searchPage.getErrorText();
-    expect(errorText === null ? '' : errorText).toMatch(/Keine Bücher gefunden|Validation failed/);
+    expect(errorText === null ? '' : errorText).toMatch(
+      /Keine Bücher gefunden|Validation failed/,
+    );
   });
 
   test('ERROR: Zugriff verweigert auf /create', async ({ page }) => {
     await page.goto('/create');
     await expect(page.locator('h1')).toHaveText('Zugriff verweigert');
-    await expect(page.locator('p')).toContainText('Nur Admins können Bücher anlegen');
+    await expect(page.locator('p')).toContainText(
+      'Nur Admins können Bücher anlegen',
+    );
   });
 
   test('USER: Zeige alle Bücher an', async ({ page }) => {

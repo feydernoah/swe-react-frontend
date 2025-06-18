@@ -54,8 +54,9 @@ export class SearchPage {
     const bookItem = this.resultList.locator(`li:has-text('Id: ${bookId}')`);
     const ratingContainer = bookItem.locator('div:has-text("Bewertung:")');
     const stars = ratingContainer.locator('svg');
-    const filledStars = await stars.evaluateAll((nodes: Element[]) =>
-      nodes.filter((n) => n.getAttribute('fill') === '#facc15').length
+    const filledStars = await stars.evaluateAll(
+      (nodes: Element[]) =>
+        nodes.filter((n) => n.getAttribute('fill') === '#facc15').length,
     );
     return filledStars;
   }
@@ -66,7 +67,9 @@ export class SearchPage {
     // Find the Bewertung container inside that item
     const ratingContainer = bookItem.locator('div:has-text("Bewertung:")');
     // Find the button with the correct aria-label
-    const button = ratingContainer.locator(`button[aria-label="Set rating to ${newRating}"]`);
+    const button = ratingContainer.locator(
+      `button[aria-label="Set rating to ${newRating}"]`,
+    );
     await button.click();
   }
 }

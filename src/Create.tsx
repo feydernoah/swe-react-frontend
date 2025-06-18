@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { refreshAccessToken } from './TokenRefresher';
 
-
 type FormData = {
   isbn: string;
   rating: number;
@@ -22,11 +21,14 @@ type FormData = {
 const Create = () => {
   const hasToken = !!Cookies.get('access_token');
   const username = Cookies.get('username');
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    defaultValues: { rating: 0 }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    defaultValues: { rating: 0 },
   });
   const [message, setMessage] = useState<string | null>(null);
-
 
   const onSubmit = async (data: FormData) => {
     let token = Cookies.get('access_token');
@@ -45,7 +47,7 @@ const Create = () => {
         return;
       }
     }
-    
+
     const payload = {
       isbn: data.isbn,
       rating: Number(data.rating),
@@ -55,18 +57,29 @@ const Create = () => {
         untertitel: data.untertitel || undefined,
       },
       art: data.art || undefined,
-      rabatt: typeof data.rabatt === 'string' ? Number(data.rabatt) : (typeof data.rabatt === 'number' ? data.rabatt : undefined),
-      lieferbar: typeof data.lieferbar === 'boolean' ? data.lieferbar : undefined,
+      rabatt:
+        typeof data.rabatt === 'string'
+          ? Number(data.rabatt)
+          : typeof data.rabatt === 'number'
+            ? data.rabatt
+            : undefined,
+      lieferbar:
+        typeof data.lieferbar === 'boolean' ? data.lieferbar : undefined,
       datum: data.datum || undefined,
       homepage: data.homepage || undefined,
-      schlagwoerter: data.schlagwoerter ? data.schlagwoerter.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      schlagwoerter: data.schlagwoerter
+        ? data.schlagwoerter
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : undefined,
     };
     try {
       const response = await fetch('https://localhost:3000/rest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -82,7 +95,9 @@ const Create = () => {
           ) {
             setMessage('ISBN gibt es bereits');
           } else {
-            setMessage('Fehler: ' + (errorJson.message || JSON.stringify(errorJson)));
+            setMessage(
+              'Fehler: ' + (errorJson.message || JSON.stringify(errorJson)),
+            );
           }
         } catch {
           const errorText = await response.text();
@@ -114,16 +129,30 @@ const Create = () => {
         <TopBar hasToken={hasToken} username={username} />
         <div className="flex flex-1 items-center justify-center px-2 sm:px-0">
           <div className="bg-base-100 rounded-lg p-6 shadow-lg w-full max-w-md flex flex-col items-center">
-            <h1 className="text-xl font-bold mb-3 text-neutral">Buch anlegen</h1>
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-3 items-center text-sm sm:flex-row sm:flex-wrap sm:justify-center sm:items-end">
+            <h1 className="text-xl font-bold mb-3 text-neutral">
+              Buch anlegen
+            </h1>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="w-full flex flex-col gap-3 items-center text-sm sm:flex-row sm:flex-wrap sm:justify-center sm:items-end"
+            >
               <div className="flex flex-col gap-3 w-full sm:flex-row sm:flex-wrap sm:gap-3 sm:justify-center">
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">ISBN*</span>
-                  <input {...register('isbn', { required: 'ISBN ist erforderlich' })} className="input input-bordered w-full max-w-xs input-sm" />
-                  <span className="text-error mt-1 min-h-[20px] block text-xs">{errors.isbn ? errors.isbn.message as string : '\u00A0'}</span>
+                  <span className="label-text font-semibold text-sm">
+                    ISBN*
+                  </span>
+                  <input
+                    {...register('isbn', { required: 'ISBN ist erforderlich' })}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
+                  <span className="text-error mt-1 min-h-[20px] block text-xs">
+                    {errors.isbn ? (errors.isbn.message as string) : '\u00A0'}
+                  </span>
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Rating* (1-5)</span>
+                  <span className="label-text font-semibold text-sm">
+                    Rating* (1-5)
+                  </span>
                   <input
                     type="number"
                     min={1}
@@ -137,25 +166,62 @@ const Create = () => {
                     })}
                     className="input input-bordered w-full max-w-xs input-sm"
                   />
-                  {errors.rating && <span className="text-error mt-1 text-xs">{errors.rating.message as string}</span>}
+                  {errors.rating && (
+                    <span className="text-error mt-1 text-xs">
+                      {errors.rating.message as string}
+                    </span>
+                  )}
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Preis*</span>
-                  <input type="number" step="0.01" {...register('preis', { required: 'Preis ist erforderlich', min: 0 })} className="input input-bordered w-full max-w-xs input-sm" />
-                  {errors.preis && <span className="text-error mt-1 text-xs">{errors.preis.message as string}</span>}
+                  <span className="label-text font-semibold text-sm">
+                    Preis*
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...register('preis', {
+                      required: 'Preis ist erforderlich',
+                      min: 0,
+                    })}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
+                  {errors.preis && (
+                    <span className="text-error mt-1 text-xs">
+                      {errors.preis.message as string}
+                    </span>
+                  )}
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Titel*</span>
-                  <input {...register('titel', { required: 'Titel ist erforderlich' })} className="input input-bordered w-full max-w-xs input-sm" />
-                  {errors.titel && <span className="text-error mt-1 text-xs">{errors.titel.message as string}</span>}
+                  <span className="label-text font-semibold text-sm">
+                    Titel*
+                  </span>
+                  <input
+                    {...register('titel', {
+                      required: 'Titel ist erforderlich',
+                    })}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
+                  {errors.titel && (
+                    <span className="text-error mt-1 text-xs">
+                      {errors.titel.message as string}
+                    </span>
+                  )}
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Untertitel</span>
-                  <input {...register('untertitel')} className="input input-bordered w-full max-w-xs input-sm" />
+                  <span className="label-text font-semibold text-sm">
+                    Untertitel
+                  </span>
+                  <input
+                    {...register('untertitel')}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
                   <span className="label-text font-semibold text-sm">Art</span>
-                  <select {...register('art')} className="select select-bordered w-full max-w-xs select-sm">
+                  <select
+                    {...register('art')}
+                    className="select select-bordered w-full max-w-xs select-sm"
+                  >
                     <option value="">Bitte wählen</option>
                     <option value="PAPERBACK">PAPERBACK</option>
                     <option value="HARDCOVER">HARDCOVER</option>
@@ -163,28 +229,73 @@ const Create = () => {
                   </select>
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Rabatt</span>
-                  <input type="number" step="0.001" {...register('rabatt', { min: { value: 0, message: 'Rabatt darf nicht negativ sein' } })} className="input input-bordered w-full max-w-xs input-sm" />
-                  {errors.rabatt && <span className="text-error mt-1 text-xs">{errors.rabatt.message as string}</span>}
+                  <span className="label-text font-semibold text-sm">
+                    Rabatt
+                  </span>
+                  <input
+                    type="number"
+                    step="0.001"
+                    {...register('rabatt', {
+                      min: {
+                        value: 0,
+                        message: 'Rabatt darf nicht negativ sein',
+                      },
+                    })}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
+                  {errors.rabatt && (
+                    <span className="text-error mt-1 text-xs">
+                      {errors.rabatt.message as string}
+                    </span>
+                  )}
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Lieferbar</span>
-                  <input type="checkbox" {...register('lieferbar')} className="checkbox checkbox-accent checkbox-sm" />
+                  <span className="label-text font-semibold text-sm">
+                    Lieferbar
+                  </span>
+                  <input
+                    type="checkbox"
+                    {...register('lieferbar')}
+                    className="checkbox checkbox-accent checkbox-sm"
+                  />
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Datum</span>
-                  <input type="date" {...register('datum')} className="input input-bordered w-full max-w-xs input-sm" />
+                  <span className="label-text font-semibold text-sm">
+                    Datum
+                  </span>
+                  <input
+                    type="date"
+                    {...register('datum')}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Homepage</span>
-                  <input type="url" {...register('homepage')} className="input input-bordered w-full max-w-xs input-sm" />
+                  <span className="label-text font-semibold text-sm">
+                    Homepage
+                  </span>
+                  <input
+                    type="url"
+                    {...register('homepage')}
+                    className="input input-bordered w-full max-w-xs input-sm"
+                  />
                 </label>
                 <label className="form-control w-full max-w-xs text-sm sm:w-64">
-                  <span className="label-text font-semibold text-sm">Schlagwörter (kommagetrennt)</span>
-                  <textarea {...register('schlagwoerter')} className="textarea textarea-bordered w-full max-w-xs textarea-sm" rows={2} />
+                  <span className="label-text font-semibold text-sm">
+                    Schlagwörter (kommagetrennt)
+                  </span>
+                  <textarea
+                    {...register('schlagwoerter')}
+                    className="textarea textarea-bordered w-full max-w-xs textarea-sm"
+                    rows={2}
+                  />
                 </label>
               </div>
-              <button type="submit" className="btn btn-accent w-full btn-sm sm:w-40">Anlegen</button>
+              <button
+                type="submit"
+                className="btn btn-accent w-full btn-sm sm:w-40"
+              >
+                Anlegen
+              </button>
             </form>
             {message && (
               <div>
@@ -201,7 +312,10 @@ const Create = () => {
                     </button>
                   </div>
                 </div>
-                <div className="fixed inset-0 bg-primary opacity-40 z-40" onClick={() => setMessage(null)} />
+                <div
+                  className="fixed inset-0 bg-primary opacity-40 z-40"
+                  onClick={() => setMessage(null)}
+                />
               </div>
             )}
           </div>
@@ -209,6 +323,6 @@ const Create = () => {
       </div>
     );
   }
-}
+};
 
 export default Create;
