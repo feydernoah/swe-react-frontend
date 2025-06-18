@@ -1,0 +1,27 @@
+' Preview durch <Alt>D
+
+@startuml Aktivitätsdiagramm_BuchLöschen
+
+title Aktivitätsdiagramm – Buch löschen (Admin)
+
+start
+
+:Suchergebnisse anzeigen;
+:Admin klickt auf "Buch löschen"-Button;
+
+:Bestätigungsdialog anzeigen;
+if ("Löschen bestätigen?") then ([ja])
+  :DELETE-Request an Backend senden;
+  :Warten auf Backend-Antwort;
+  if ("Löschen erfolgreich?") then ([ja])
+    :Buch aus Ergebnisliste entfernen;
+  else ([nein])
+    :Fehlermeldung anzeigen;
+  endif
+else ([nein])
+  :Abbrechen, zurück zu Suchergebnissen;
+endif
+
+stop
+
+@enduml

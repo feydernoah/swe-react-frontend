@@ -2,7 +2,7 @@
 
 @startuml Aktivitätsdiagramm_BuchAnlegen
 
-title Aktivitätsdiagramm – Buch neu anlegen
+title Aktivitätsdiagramm – Buch neu anlegen (Admin)
 
 start
 
@@ -13,7 +13,12 @@ start
 :Validierung der Eingaben;
 
 if ("Daten korrekt?") then ([ja])
-  :Popup: Buch wurde erfolgreich angelegt;
+  :POST-Request an Backend senden;
+  if ("Buch erfolgreich angelegt?") then ([ja])
+    :Popup: Buch wurde erfolgreich angelegt;
+  else ([nein])
+    :Popup: Fehler beim Anlegen (z.B. doppelte ISBN);
+  endif
 else ([nein])
   :Popup: Eingabefehler erkannt;
 endif

@@ -9,12 +9,17 @@ start
 :Eingabeformular anzeigen;
 :ISBN eingeben und Bild einfügen;
 :Button "Bild hochladen" klicken;
-:Validierung der ISBN;
+:Validierung der ISBN und des Bildes;
 
-if ("Existiert die ISBN?") then ([ja])
-  :Popup: Bild erfolgreich hinzugefügt;
+if ("ISBN und Bild gültig?") then ([ja])
+  :POST-Request an Backend senden;
+  if ("Bild erfolgreich hinzugefügt?") then ([ja])
+    :Popup: Bild erfolgreich hinzugefügt;
+  else ([nein])
+    :Popup: Fehler beim Hochladen (z.B. Netzwerkfehler, ungültiges Format);
+  endif
 else ([nein])
-  :Popup: Fehler – ISBN nicht gefunden;
+  :Popup: Fehler – ISBN oder Bild ungültig;
 endif
 
 :Button "OK" klicken;

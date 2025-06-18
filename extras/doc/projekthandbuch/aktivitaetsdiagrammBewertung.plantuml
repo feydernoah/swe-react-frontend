@@ -2,7 +2,7 @@
 
 @startuml Aktivitätsdiagramm_Bewertung
 
-title Aktivitätsdiagramm – Buch bewerten
+title Aktivitätsdiagramm – Buch bewerten (Admin)
 
 start
 
@@ -12,8 +12,11 @@ start
 :Neue Bewertung abgeben;
 :Neue Bewertung wird gesendet;
 
-:Backend aktualisiert Bewertung;
-:Sterne werden sofort aktualisiert (ohne Reload);
+if ("Bewertung erfolgreich gespeichert?") then ([ja])
+  :Sterne werden sofort aktualisiert (ohne Reload);
+else ([nein])
+  :Fehlermeldung anzeigen;
+endif
 
 stop
 

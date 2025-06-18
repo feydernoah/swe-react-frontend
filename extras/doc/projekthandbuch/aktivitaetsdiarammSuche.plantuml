@@ -1,23 +1,26 @@
 ' Preview durch <Alt>D
 
-@startuml Aktivitätsdiagramm_BuchAnlegen
+@startuml Aktivitätsdiagramm_BuchSuche
 
-title Aktivitätsdiagramm – Buch neu anlegen
+title Aktivitätsdiagramm – Buchsuche
 
 start
 
-:Eingabeformular für Buchdaten anzeigen;
-:Eingabe durch Admin;
+:Eingabeformular für Suchkriterien anzeigen;
+:Eingabe durch Nutzer (ID, ISBN, Typ, Bewertung, ...);
 
-:Button "Anlegen" klicken;
+:Button "Suchen" klicken;
 :Validierung der Eingaben;
 
-if ("Daten korrekt?") then ([ja])
-  :Buch speichern;
-  :Weiterleitung zur Startseite;
+:Suchanfrage an Backend senden;
+
+:Warten auf Antwort;
+
+if ("Bücher gefunden?") then ([ja])
+  :Suchergebnisse anzeigen;
+  :Bücher mit Details, Cover, Bewertung, Schlagwörtern etc. darstellen;
 else ([nein])
-  :Fehlermeldung anzeigen;
-  :Eingabeformular erneut anzeigen;
+  :Fehlermeldung "Kein Buch gefunden" anzeigen;
 endif
 
 stop

@@ -17,10 +17,21 @@ state SucheBuecher {
   EntscheidungSuche --> GefundeneBuecher : mind. 1 Buch gefunden
 }
 
-' --- Buch bewerten ---
+' --- Buch bewerten oder löschen ---
 state GefundeneBuecher {
   [*] --> Buchliste
   Buchliste --> Buchliste : Sterne klicken\n(Bewertung ändern)
+  Buchliste --> EntscheidungLoeschen : Button "Buch löschen"
+}
+
+state EntscheidungLoeschen {
+  [*] --> BestaetigungLoeschen : Bestätigungsdialog
+  BestaetigungLoeschen --> Buchliste : "Abbrechen"
+  BestaetigungLoeschen --> LoescheBuch : "Löschen bestätigen"
+  LoescheBuch --> EntscheidungLoeschenErgebnis : Backend-Antwort
+  EntscheidungLoeschenErgebnis --> Buchliste : Buch erfolgreich gelöscht
+  EntscheidungLoeschenErgebnis --> PopupFehlerLoeschen : Fehler beim Löschen
+  PopupFehlerLoeschen --> Buchliste : Fehleranzeige schließen
 }
 
 ' --- Neues Buch hinzufügen ---
