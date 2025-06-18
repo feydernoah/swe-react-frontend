@@ -1,0 +1,25 @@
+' Preview durch <Alt>D
+
+@startuml Aktivitätsdiagramm_BildHinzufuegen
+
+title Aktivitätsdiagramm – Bild zu Buch hinzufügen
+
+start
+
+:Eingabeformular anzeigen;
+:ISBN eingeben und Bild einfügen;
+:Button "Bild hochladen" klicken;
+:Validierung der ISBN;
+
+if ("Existiert die ISBN?") then ([ja])
+  :Popup: Bild erfolgreich hinzugefügt;
+else ([nein])
+  :Popup: Fehler – ISBN nicht gefunden;
+endif
+
+:Button "OK" klicken;
+:Rückkehr zum Eingabeformular;
+
+stop
+
+@enduml

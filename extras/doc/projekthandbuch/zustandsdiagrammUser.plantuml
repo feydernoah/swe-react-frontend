@@ -1,0 +1,19 @@
+' Preview durch <Alt>D
+
+@startuml User Page Flow
+
+[*] --> SucheBuecher : Menüpunkt "Suche"
+[*] --> Home : Logout
+
+' --- Suchbereich ---
+state SucheBuecher {
+  [*] --> Suchformular : Suchkriterien eingeben
+  Suchformular --> Fetching : Button "Suchen"
+  Fetching --> EntscheidungSuche : Suchergebnis eingetroffen
+
+  EntscheidungSuche --> ErrorMessage : kein Buch gefunden
+  EntscheidungSuche --> GefundeneBuecher : mind. 1 Buch gefunden
+  
+}
+
+@enduml

@@ -1,0 +1,25 @@
+' Preview durch <Alt>D
+
+@startuml Aktivitätsdiagramm_BuchAnlegen
+
+title Aktivitätsdiagramm – Buch neu anlegen
+
+start
+
+:Eingabeformular für Buchdaten anzeigen;
+:Eingabe Daten;
+
+:Button "Anlegen" klicken;
+:Validierung der Eingaben;
+
+if ("Daten korrekt?") then ([ja])
+  :Popup: Buch wurde erfolgreich angelegt;
+else ([nein])
+  :Popup: Eingabefehler erkannt;
+endif
+
+:Rückkehr zum Eingabeformular;
+
+stop
+
+@enduml

@@ -1,0 +1,46 @@
+' Preview durch <Alt>D
+
+@startuml Admin Page Flow
+
+[*] --> BuchAnlegen : Menüpunkt "Anlegen"
+[*] --> BildAnlegen : Menüpunkt "Bild Anlegen"
+[*] --> SucheBuecher : Menüpunkt "Suche"
+[*] --> Home : Button "Logout"
+
+' --- Bücher Suche ---
+state SucheBuecher {
+  [*] --> Suchformular : Suchkriterien eingeben
+  Suchformular --> Fetching : Button "Suchen"
+  Fetching --> EntscheidungSuche : Suchergebnis eingetroffen
+
+  EntscheidungSuche --> ErrorMessage : kein Buch gefunden
+  EntscheidungSuche --> GefundeneBuecher : mind. 1 Buch gefunden
+}
+
+' --- Buch bewerten ---
+state GefundeneBuecher {
+  [*] --> Buchliste
+  Buchliste --> Buchliste : Sterne klicken\n(Bewertung ändern)
+}
+
+' --- Neues Buch hinzufügen ---
+state BuchAnlegen {
+  [*] --> BuchAnlegeFormular :  Neue Buchdaten eingeben
+BuchAnlegeFormular --> EntscheidungAnlegenBuch : Button "Anlegen"
+EntscheidungAnlegenBuch --> PopupFehlerBuch : fehlerhafte Daten
+EntscheidungAnlegenBuch --> PopupErfogreichBuch : korrekte Daten
+PopupFehlerBuch --> BuchAnlegeFormular : Button "OK"
+PopupErfogreichBuch --> BuchAnlegeFormular : Button "OK"
+}
+
+' --- Bild Anlegen ---
+state BildAnlegen {
+  [*] --> BildAnlegeFormular : Bild zu Buch hinzufügen
+  BildAnlegeFormular --> EntscheidungAnlegenBild : Button "Bild hochladen"
+EntscheidungAnlegenBild --> PopupFehlerBild : fehlerhafte ISBN
+EntscheidungAnlegenBild --> PopupErfogreichBild : existierende ISBN
+PopupFehlerBild --> BildAnlegeFormular : Button "OK"
+PopupErfogreichBild --> BildAnlegeFormular : Button "OK"
+}
+
+@enduml

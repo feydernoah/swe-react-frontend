@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './test',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'https://localhost:3001',
     headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
@@ -12,7 +12,7 @@ export default defineConfig({
   },
   webServer: {
     command: 'npm run dev',
-    port: 5173,
+    port: 3001,
     reuseExistingServer: true,
     timeout: 120 * 1000,
   },

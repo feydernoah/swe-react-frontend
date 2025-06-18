@@ -1,0 +1,29 @@
+' Preview durch <Alt>D
+
+@startuml No Role Page Flow
+
+[*] --> Home : Seite geöffnet
+
+' --- Navigation von Home ---
+Home --> SucheBuecher : Menüpunkt "Suche"
+Home --> LoginFormular : Button "Login"
+
+' --- Suchbereich ---
+state SucheBuecher {
+  [*] --> Suchformular : Suchkriterien eingeben
+  Suchformular --> Fetching : Button "Suchen"
+  Fetching --> EntscheidungSuche : Suchergebnis eingetroffen
+
+  EntscheidungSuche --> ErrorMessage : kein Buch gefunden
+  EntscheidungSuche --> GefundeneBuecher : mind. 1 Buch gefunden
+}
+
+' --- Loginprozess ---
+LoginFormular --> EntscheidungAnmelden : Anmeldedaten eingeben
+EntscheidungAnmelden --> Authentifizierung : Button "Login"
+Authentifizierung --> RolleUser : gültige Daten (User)
+Authentifizierung --> RolleAdmin : gültige Daten (Admin)
+Authentifizierung --> LoginFehlgeschlagen : ungültige Daten
+LoginFehlgeschlagen --> LoginFormular : Button "OK"
+
+@enduml
