@@ -25,6 +25,7 @@ interface Book {
 interface SearchFormInputs {
   query: string;
   art?: string;
+  rating?: number;
 }
 
 // Helper to render book fields
@@ -78,6 +79,16 @@ const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookI
       );
     }
     if (typeof value === 'string' || typeof value === 'number') {
+      // Rabatt as percentage (works for both string and number)
+      if (key.toLowerCase() === 'rabatt') {
+        const num = typeof value === 'string' ? parseFloat(value) : value;
+        if (!isNaN(num)) {
+          const percent = (num * 100).toFixed(1).replace(/\.0$/, '');
+          return (
+            <div key={key}><span className="font-bold capitalize">Rabatt:</span> {percent}%</div>
+          );
+        }
+      }
       return (
         <div key={key}><span className="font-bold capitalize">{key}:</span> {value}</div>
       );
@@ -164,7 +175,9 @@ const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
 };
 
 const SearchPage = () => {
-  const { register, handleSubmit } = useForm<SearchFormInputs>();
+  const { register, handleSubmit, setValue, watch, getValues } = useForm<SearchFormInputs>({
+    defaultValues: { rating: undefined }
+  });
   const [books, setBooks] = useState<Book[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -173,15 +186,28 @@ const SearchPage = () => {
   const [lastSearchAll, setLastSearchAll] = useState(false);
   const [lastSearchInput, setLastSearchInput] = useState<SearchFormInputs>({ query: '', art: '' });
   const [bookEtags, setBookEtags] = useState<Record<string, string>>({});
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const selectedRating = watch('rating');
 
   const onSubmit = async (data: SearchFormInputs, pageOverride?: number, pageSizeOverride?: number) => {
-    setLastSearchInput(data);
+    // Use getValues to get the latest rating value
+    const formValues = getValues();
+    // Accept both string and number for rating
+    let rating: number | undefined = undefined;
+    if (
+      formValues.rating !== undefined &&
+      formValues.rating !== null &&
+      !(typeof formValues.rating === 'string' && formValues.rating === '')
+    ) {
+      rating = typeof formValues.rating === 'string' ? Number(formValues.rating) : formValues.rating;
+    }
+    setLastSearchInput({ ...data, rating });
     setLoading(true);
     setError(null);
     setBooks(null);
     const input = data.query.trim();
     const art = data.art || '';
-    const isAllBooks = !input && !art;
+    const isAllBooks = !input && !art && !rating;
     setLastSearchAll(isAllBooks);
     if (isAllBooks && typeof pageOverride !== 'number') setPage(0);
     try {
@@ -197,6 +223,9 @@ const SearchPage = () => {
       }
       if (art) {
         params.append('art', art);
+      }
+      if (typeof rating === 'number' && !isNaN(rating)) {
+        params.append('rating', String(rating));
       }
       if (isAllBooks) {
         const pageParam = (typeof pageOverride === 'number' ? pageOverride : page) + 1;
@@ -335,12 +364,10 @@ const SearchPage = () => {
       }
       setBooks((prev) => {
         if (!prev) return prev;
-        // Check if paginated
-        const firstBook = prev[0] as unknown;
-        const isPaginated = prev.length === 1 && typeof firstBook === 'object' && firstBook !== null && 'content' in firstBook && Array.isArray((firstBook as { content?: unknown }).content);
+        // Handle paginated and non-paginated
+        const isPaginated = prev.length === 1 && prev[0] && typeof prev[0] === 'object' && 'content' in prev[0] && Array.isArray((prev[0] as unknown as { content?: unknown }).content);
         if (isPaginated) {
-          // Update in content array
-          const paginated = firstBook as { content: Book[] };
+          const paginated = prev[0] as unknown as { content: Array<Record<string, unknown>>; [key: string]: unknown };
           const updatedContent = paginated.content.map(b => b.id === bookId ? { ...b, rating: newRating } : b);
           return [{ ...paginated, content: updatedContent }] as unknown as Book[];
         } else {
@@ -358,12 +385,50 @@ const SearchPage = () => {
     }
   };
 
+  // Add delete handler
+  const handleDeleteBook = async (bookId: string) => {
+    if (!window.confirm('Soll das Buch wirklich gelöscht werden?')) return;
+    const token = Cookies.get('access_token');
+    if (!token) {
+      setError('Nicht eingeloggt oder keine Berechtigung');
+      return;
+    }
+    try {
+      const res = await fetch(`https://localhost:3000/rest/${encodeURIComponent(bookId)}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!res.ok && res.status !== 204) {
+        setError('Fehler beim Löschen des Buchs');
+        return;
+      }
+      setBooks((prev) => {
+        if (!prev) return prev;
+        // Handle paginated and non-paginated
+        const isPaginated = prev.length === 1 && prev[0] && typeof prev[0] === 'object' && 'content' in prev[0] && Array.isArray((prev[0] as unknown as { content?: unknown }).content);
+        if (isPaginated) {
+          const paginated = prev[0] as unknown as { content: Array<Record<string, unknown>>; [key: string]: unknown };
+          const updatedContent = paginated.content.filter((b) => (typeof b.id === 'string' ? b.id : String(b.id)) !== bookId);
+          return [{ ...paginated, content: updatedContent }] as unknown as Book[];
+        } else {
+          return prev.filter(b => b.id !== bookId);
+        }
+      });
+    } catch {
+      setError('Fehler beim Löschen des Buchs');
+    }
+  };
+
   // Render list of books (paginated or not)
   const renderBooks = () => {
     if (!books) return null;
     if (books.length === 0) {
       return <div className="text-white mt-8">Keine Bücher gefunden oder ungültige Antwort.</div>;
     }
+    const username = Cookies.get('username');
+    const isAdmin = username === 'admin';
     // Paginated response
     const maybePaginated = books.length === 1 && books[0] && typeof books[0] === 'object' && 'content' in books[0] && Array.isArray((books[0] as unknown as Record<string, unknown>).content);
     if (maybePaginated) {
@@ -378,7 +443,18 @@ const SearchPage = () => {
               const entries = Object.entries(buch);
               const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
               return (
-                <li key={typeof buch.id === 'string' ? buch.id : idx} className="py-4 text-white flex items-start">
+                <li key={typeof buch.id === 'string' ? buch.id : idx} className="py-4 text-white flex items-start relative">
+                  {isAdmin && (
+                    <button
+                      title="Buch löschen"
+                      onClick={() => handleDeleteBook(typeof buch.id === 'string' ? buch.id : String(buch.id))}
+                      className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-red-700 group"
+                    >
+                      <svg className="w-6 h-6 text-gray-400 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
                   <BookImage
                     bookId={typeof buch.id === 'string' ? buch.id : String(buch.id)}
                     title={(() => {
@@ -458,7 +534,18 @@ const SearchPage = () => {
             const entries = Object.entries(buch);
             const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
             return (
-              <li key={buch.id || idx} className="py-4 text-white flex items-start">
+              <li key={buch.id || idx} className="py-4 text-white flex items-start relative">
+                {isAdmin && (
+                  <button
+                    title="Buch löschen"
+                    onClick={() => handleDeleteBook(buch.id)}
+                    className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-red-700 group"
+                  >
+                    <svg className="w-6 h-6 text-gray-400 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
                 <BookImage
                   bookId={buch.id}
                   title={(() => {
@@ -508,20 +595,65 @@ const SearchPage = () => {
             placeholder="Geben Sie die Buch-ID oder ISBN ein"
           />
         </label>
-        <label className="form-control w-full max-w-xs mb-4">
-          <span className="label-text font-semibold">Buchtyp</span>
-          <select
-            id="art"
-            {...register('art')}
-            className="select select-bordered w-full max-w-xs"
-            defaultValue=""
+        <div className="w-full max-w-xs mb-4">
+          <button
+            type="button"
+            className="flex items-center gap-2 text-info font-semibold focus:outline-none"
+            onClick={() => setFiltersOpen((open) => !open)}
+            aria-expanded={filtersOpen}
+            aria-controls="filters-panel"
           >
-            <option value="">Alle Typen</option>
-            <option value="EPUB">EPUB</option>
-            <option value="HARDCOVER">HARDCOVER</option>
-            <option value="PAPERBACK">PAPERBACK</option>
-          </select>
-        </label>
+            <span>Filter</span>
+            <svg className={`w-5 h-5 transition-transform ${filtersOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+          </button>
+          {filtersOpen && (
+            <div id="filters-panel" className="mt-4 p-4 rounded bg-gray-900 border border-gray-700 flex flex-col gap-4 animate-fade-in">
+              <label className="form-control w-full">
+                <span className="label-text font-semibold">Buchtyp</span>
+                <select
+                  id="art"
+                  {...register('art')}
+                  className="select select-bordered w-full"
+                  defaultValue=""
+                >
+                  <option value="">Alle Typen</option>
+                  <option value="EPUB">EPUB</option>
+                  <option value="HARDCOVER">HARDCOVER</option>
+                  <option value="PAPERBACK">PAPERBACK</option>
+                </select>
+              </label>
+              <div className="form-control w-full">
+                <span className="label-text font-semibold mb-2">Bewertung (mindestens)</span>
+                <div className="flex flex-col gap-2 items-start">
+                  {[1,2,3,4,5].map((star) => (
+                    <label key={star} className="flex flex-row items-center cursor-pointer gap-2">
+                      <input
+                        type="radio"
+                        value={star}
+                        {...register('rating')}
+                        checked={selectedRating === star}
+                        onChange={() => setValue('rating', star)}
+                        className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring focus:ring-blue-200"
+                      />
+                      <StarRating rating={star} interactive={false} />
+                    </label>
+                  ))}
+                  <label className="flex flex-row items-center cursor-pointer gap-2 mt-2">
+                    <input
+                      type="radio"
+                      value=""
+                      {...register('rating')}
+                      checked={selectedRating === undefined}
+                      onChange={() => setValue('rating', undefined)}
+                      className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring focus:ring-blue-200"
+                    />
+                    <span className="text-xs text-gray-400">Alle</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <button
           type="submit"
           className="btn btn-accent w-full"
