@@ -13,7 +13,7 @@ export async function refreshAccessToken() {
   const params = new URLSearchParams();
   params.append('refresh_token', refreshToken);
 
-  const response = await fetch('https://localhost:3000/auth/refresh', {
+  const response = await fetch('https://localhost:3001/auth/refresh', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString(),

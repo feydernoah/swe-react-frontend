@@ -92,7 +92,7 @@ const Create = () => {
     };
     // Daten an das Backend senden
     try {
-      const response = await fetch('https://localhost:3000/rest', {
+      const response = await fetch('https://localhost:3001/rest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ const Create = () => {
                   </span>
                   <input
                     type="number"
-                    step="0.01"
+                    step="0.1"
                     {...register('preis', {
                       required: 'Preis ist erforderlich',
                       min: 0,

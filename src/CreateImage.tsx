@@ -58,7 +58,7 @@ const CreateImage = () => {
     let id: string | null = null;
     try {
       const res = await fetch(
-        `https://localhost:3000/rest?isbn=${encodeURIComponent(data.isbn)}`,
+        `https://localhost:3001/rest?isbn=${encodeURIComponent(data.isbn)}`,
       );
       const result = await res.json();
       if (
@@ -88,7 +88,7 @@ const CreateImage = () => {
     formData.append('file', data.image[0]);
     const token = Cookies.get('access_token');
     try {
-      const response = await fetch(`https://localhost:3000/rest/${id}`, {
+      const response = await fetch(`https://localhost:3001/rest/${id}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

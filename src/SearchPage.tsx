@@ -36,6 +36,7 @@ interface SearchFormInputs {
   rating?: number;
 }
 
+const renderBookFields = (entries: [string, unknown][]) => {
 // Rendert die wichtigsten Buchfelder (ID, Titel, Untertitel)
   return entries.map(([key, value]) => {
     if (key.toLowerCase() === 'schlagwoerter') return null;
@@ -211,6 +212,7 @@ const StarRating = ({
   );
 };
 
+const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
 // Zeigt das Buchcover an oder einen Platzhalter, falls kein Bild vorhanden ist.
   const imgSrc = `https://localhost:3000/rest/file/${encodeURIComponent(bookId)}`;
   const [error, setError] = useState(false);
@@ -429,7 +431,7 @@ const SearchPage = () => {
       // Holt den ETag für dieses Buch
       try {
         const res = await fetch(
-          `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
+          `https://localhost:3001/rest/${encodeURIComponent(bookId)}`,
         );
         if (!res.ok) throw new Error('Fehler beim Nachladen des ETags');
         const fetchedEtag = res.headers.get('etag');
@@ -452,7 +454,7 @@ const SearchPage = () => {
     }
     try {
       const res = await fetch(
-        `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
+        `https://localhost:3001/rest/${encodeURIComponent(bookId)}`,
         {
           method: 'PUT',
           headers: {
@@ -522,7 +524,7 @@ const SearchPage = () => {
     }
     try {
       const res = await fetch(
-        `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
+        `https://localhost:3001/rest/${encodeURIComponent(bookId)}`,
         {
           method: 'DELETE',
           headers: {

@@ -30,7 +30,7 @@ const LoginPage = () => {
       const params = new URLSearchParams();
       params.append('username', data.username);
       params.append('password', data.password);
-      const response = await fetch('https://localhost:3000/auth/token', {
+      const response = await fetch('https://localhost:3001/auth/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

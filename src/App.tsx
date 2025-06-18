@@ -13,7 +13,7 @@ import LandingPage from './LandingPage.tsx';
  * 
  * Verantwortlich für:
  * - Routing zwischen den Seiten (Login, Suche, Buch-/Bild-Anlegen)
- * - Einbindung des Layouts (z. B. TopBar)
+ * - Einbindung des Layouts (z.B. TopBar)
  * - Übergabe von Login-Informationen via Cookies
  */
 const App = () => {
@@ -22,10 +22,10 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/create" element={<Create />} />
         <Route path="/create-image" element={<CreateImage />} />
-        <Route path="/" element={<LandingPage />} />
         <Route
           path="/search"
           element={
