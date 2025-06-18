@@ -1,2 +1,3 @@
+/* Importiert TailwindCSS und DaisyUI für globale Styles und Komponenten */
 @import 'tailwindcss';
 @plugin "daisyui";

@@ -8,6 +8,18 @@ interface ImageFormData {
   image: FileList;
 }
 
+/**
+ * Diese Komponente ermöglicht es Administratoren, ein Bild für ein bestehendes Buch hochzuladen.
+ *
+ * Funktionen:
+ * - Formular mit ISBN und Bildauswahl
+ * - Automatische Bildvorschau vor dem Upload
+ * - Validierung der Eingaben mit react-hook-form
+ * - Zugriff nur für Benutzer mit dem Benutzernamen "admin"
+ * - Ermittlung der Buch-ID anhand der ISBN
+ * - Bild-Upload über einen multipart/form-data POST-Request
+ * - Anzeigen von Bestätigungs- und Fehlermeldungen
+ */
 const CreateImage = () => {
   const hasToken = !!Cookies.get('access_token');
   const username = Cookies.get('username');
@@ -24,6 +36,7 @@ const CreateImage = () => {
   const [loading, setLoading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Generiert eine Vorschau für das gewählte Bild
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     setValue('image', files as FileList, { shouldValidate: true });
@@ -37,6 +50,7 @@ const CreateImage = () => {
     }
   };
 
+  // Verarbeitet das Formular: ISBN prüfen, ID abrufen, Bild hochladen
   const onSubmit = async (data: ImageFormData) => {
     setMessage(null);
     setLoading(true);
@@ -62,12 +76,14 @@ const CreateImage = () => {
       setLoading(false);
       return;
     }
-    // Bild zu ID hochladen
+    // Bild-Datei validieren
     if (!data.image || data.image.length === 0) {
       setMessage('Bitte ein Bild auswählen.');
       setLoading(false);
       return;
     }
+
+    // Upload des Bildes
     const formData = new FormData();
     formData.append('file', data.image[0]);
     const token = Cookies.get('access_token');

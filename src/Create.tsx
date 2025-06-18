@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { refreshAccessToken } from './TokenRefresher';
 
+// Typdefinition für die Formulardaten
 type FormData = {
   isbn: string;
   rating: number;
@@ -18,6 +19,17 @@ type FormData = {
   schlagwoerter?: string;
 };
 
+/**
+ * Diese Komponente ermöglicht es Admin-Benutzern, ein neues Buch anzulegen.
+ * 
+ * Funktionen:
+ * - Anzeige eines Formulars für ISBN, Titel, Untertitel, Preis und Bewertung
+ * - Validierung der Eingaben mit react-hook-form
+ * - Zugriffsbeschränkung: Nur Benutzer mit dem Namen "admin" dürfen Bücher anlegen
+ * - Prüfung und ggf. Erneuerung des Access Tokens über Refresh-Token
+ * - Kommunikation mit dem Backend über einen POST-Request
+ * - Anzeige von Fehlermeldungen und Bestätigungen über ein Popup
+ */
 const Create = () => {
   const hasToken = !!Cookies.get('access_token');
   const username = Cookies.get('username');
@@ -30,9 +42,12 @@ const Create = () => {
   });
   const [message, setMessage] = useState<string | null>(null);
 
+  // Funktion zum Absenden des Formulars
   const onSubmit = async (data: FormData) => {
     let token = Cookies.get('access_token');
     const refreshToken = Cookies.get('refresh_token');
+
+    // Token ggf. aktualisieren, wenn abgelaufen
     if (!token) {
       if (refreshToken) {
         try {
@@ -48,6 +63,7 @@ const Create = () => {
       }
     }
 
+    // Vorbereitung der Datenstruktur für den API-Request
     const payload = {
       isbn: data.isbn,
       rating: Number(data.rating),
@@ -74,6 +90,7 @@ const Create = () => {
             .filter(Boolean)
         : undefined,
     };
+    // Daten an das Backend senden
     try {
       const response = await fetch('https://localhost:3000/rest', {
         method: 'POST',
@@ -113,6 +130,7 @@ const Create = () => {
     }
   };
 
+  // Wenn Benutzer nicht "admin" ist → Zugriff verweigert
   if (username !== 'admin') {
     return (
       <div data-theme="black" className="bg-primary min-h-screen">
@@ -124,6 +142,7 @@ const Create = () => {
       </div>
     );
   } else {
+    // Admin: Formular anzeigen
     return (
       <div data-theme="black" className="bg-primary min-h-screen flex flex-col">
         <TopBar hasToken={hasToken} username={username} />

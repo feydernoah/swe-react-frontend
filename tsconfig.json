@@ -1,3 +1,5 @@
+// Zentrale TypeScript-Konfiguration mit Verweisen auf Teilkonfigurationen (app, node)
+
 {
   "files": [],
   "references": [

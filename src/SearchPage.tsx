@@ -3,6 +3,13 @@ import { useState } from 'react';
 import './App.css';
 import Cookies from 'js-cookie';
 
+/**
+ * SearchPage Komponente für die Buchsuche.
+ * 
+ * Ermöglicht die Suche nach Büchern anhand von ID, ISBN oder Typ.
+ * Unterstützt Paginierung, Bewertung (nur für Admins), Anzeige von Buchdetails und Bildern.
+ * 
+ */
 interface Book {
   id: string;
   isbn: string;
@@ -14,14 +21,13 @@ interface Book {
   datum: string;
   homepage: string;
   schlagwoerter?: string[];
-  abbildungen?: Array<{ contentType: string; beschriftung?: string }>; // optional, as in backend
+  abbildungen?: Array<{ contentType: string; beschriftung?: string }>;
   titel:
     | string
     | {
         titel: string;
         untertitel?: string;
       };
-  // Add any other fields as needed from backend DTOs
 }
 
 interface SearchFormInputs {
@@ -30,8 +36,7 @@ interface SearchFormInputs {
   rating?: number;
 }
 
-// Helper to render book fields
-const renderBookFields = (entries: [string, unknown][]) => {
+// Rendert die wichtigsten Buchfelder (ID, Titel, Untertitel)
   return entries.map(([key, value]) => {
     if (key.toLowerCase() === 'schlagwoerter') return null;
     if (key === 'id') {
@@ -76,7 +81,7 @@ const renderBookFields = (entries: [string, unknown][]) => {
   });
 };
 
-// Helper to render other fields
+// Rendert weitere Buchfelder, inkl. Bewertung (mit Änderungsfunktion für Admins).
 const renderOtherFields = (
   entries: [string, unknown][],
   onRatingChange?: (bookId: string, newRating: number) => void,
@@ -104,7 +109,7 @@ const renderOtherFields = (
       );
     }
     if (typeof value === 'string' || typeof value === 'number') {
-      // Rabatt as percentage (works for both string and number)
+      // Rabatt als Prozentzahl (funktioniert für string und number)
       if (key.toLowerCase() === 'rabatt') {
         const num = typeof value === 'string' ? parseFloat(value) : value;
         if (!isNaN(num)) {
@@ -155,6 +160,7 @@ const renderOtherFields = (
   });
 };
 
+// Stellt eine interaktive Sternebewertung dar.
 const StarRating = ({
   rating,
   onRatingChange,
@@ -205,8 +211,7 @@ const StarRating = ({
   );
 };
 
-// Helper to render book image
-const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
+// Zeigt das Buchcover an oder einen Platzhalter, falls kein Bild vorhanden ist.
   const imgSrc = `https://localhost:3000/rest/file/${encodeURIComponent(bookId)}`;
   const [error, setError] = useState(false);
   return (
@@ -240,6 +245,8 @@ const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
     </div>
   );
 };
+
+// Hauptkomponente für die Buchsuche. Stellt das Suchformular, die Ergebnisliste und die Paginierung bereit.
 
 const SearchPage = () => {
   const { register, handleSubmit, setValue, watch, getValues } =
@@ -412,14 +419,14 @@ const SearchPage = () => {
       setError('Buch nicht gefunden: ' + bookId);
       return;
     }
-    // Build the full book object for PUT (copy all fields, update rating)
+    // Erstelle das vollständige Buchobjekt für das PUT-Request (kopiere alle Felder, aktualisiere die Bewertung)
     const fullBook: Book = {
       ...bookToUpdate,
       rating: newRating,
     };
     let etag = bookEtags[bookId];
     if (!etag) {
-      // Fetch ETag for this book
+      // Holt den ETag für dieses Buch
       try {
         const res = await fetch(
           `https://localhost:3000/rest/${encodeURIComponent(bookId)}`,
@@ -471,7 +478,7 @@ const SearchPage = () => {
       }
       setBooks((prev) => {
         if (!prev) return prev;
-        // Handle paginated and non-paginated
+        // Behandelt paginierte und nicht paginierte Ergebnisse
         const isPaginated =
           prev.length === 1 &&
           prev[0] &&
@@ -490,13 +497,12 @@ const SearchPage = () => {
             { ...paginated, content: updatedContent },
           ] as unknown as Book[];
         } else {
-          // Update in flat array
           return prev.map((b) =>
             b.id === bookId ? { ...b, rating: newRating } : b,
           );
         }
       });
-      // Update ETag if present in response
+      // Aktualisiert den ETag, falls einer in der Antwort vorhanden ist
       const newEtag = res.headers.get('etag');
       if (newEtag) {
         setBookEtags((prev) => ({ ...prev, [bookId]: newEtag }));
@@ -506,7 +512,7 @@ const SearchPage = () => {
     }
   };
 
-  // Add delete handler
+  // Handler zum Löschen eines Buchs
   const handleDeleteBook = async (bookId: string) => {
     if (!window.confirm('Soll das Buch wirklich gelöscht werden?')) return;
     const token = Cookies.get('access_token');
@@ -530,7 +536,7 @@ const SearchPage = () => {
       }
       setBooks((prev) => {
         if (!prev) return prev;
-        // Handle paginated and non-paginated
+        // Behandelt paginierte und nicht paginierte Ergebnisse
         const isPaginated =
           prev.length === 1 &&
           prev[0] &&
@@ -557,7 +563,7 @@ const SearchPage = () => {
     }
   };
 
-  // Render list of books (paginated or not)
+  // Rendert die Liste der Bücher (paginierte oder nicht paginierte Ergebnisse)
   const renderBooks = () => {
     if (!books) return null;
     if (books.length === 0) {
@@ -733,7 +739,6 @@ const SearchPage = () => {
         </div>
       );
     }
-    // Default: render books as before
     return (
       <div className="mt-8 w-full max-w-2xl bg-primary rounded-lg p-6 shadow-lg">
         <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">

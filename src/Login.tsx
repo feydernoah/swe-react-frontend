@@ -5,6 +5,17 @@ import { useState } from 'react';
 
 type LoginFormInputs = { username: string; password: string };
 
+/**
+ * Diese Komponente stellt eine Login-Seite für die Anwendung bereit.
+ *
+ * Funktionen:
+ * - Eingabe von Benutzername (E-Mail) und Passwort
+ * - Validierung der Felder mit react-hook-form
+ * - Authentifizierung via POST-Request an das Token-Endpoint
+ * - Speicherung von Access-Token, Refresh-Token und Benutzername in Cookies
+ * - Weiterleitung zur Startseite nach erfolgreichem Login
+ * - Einfaches responsives Layout mit Tailwind CSS und Login.css
+ */
 const LoginPage = () => {
   const navigate = useNavigate();
   const {
@@ -13,6 +24,7 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<LoginFormInputs>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Verarbeitet das Login-Formular
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       const params = new URLSearchParams();

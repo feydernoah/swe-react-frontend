@@ -1,3 +1,5 @@
+// TailwindCSS-Konfiguration für das Projekt (inkl. DaisyUI-Themes)
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],

@@ -8,6 +8,14 @@ import Create from './Create';
 import CreateImage from './CreateImage';
 import LandingPage from './LandingPage.tsx';
 
+/**
+ * Hauptkomponente der Anwendung.
+ * 
+ * Verantwortlich für:
+ * - Routing zwischen den Seiten (Login, Suche, Buch-/Bild-Anlegen)
+ * - Einbindung des Layouts (z. B. TopBar)
+ * - Übergabe von Login-Informationen via Cookies
+ */
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
   const username = Cookies.get('username');

@@ -6,6 +6,21 @@ interface TopBarProps {
   username?: string;
 }
 
+/**
+ * TopBar-Komponente
+ * 
+ * Diese Komponente stellt die obere Navigationsleiste der Anwendung dar.
+ * Sie zeigt das Logo, ein Dropdown-Menü für Navigation und Admin-Funktionen sowie Login/Logout-Buttons an.
+ * 
+ * Props:
+ * - hasToken: Gibt an, ob ein Benutzer eingeloggt ist.
+ * - username: Optionaler Benutzername, um Admin-Funktionen anzuzeigen.
+ * 
+ * Funktionen:
+ * - Zeigt für Admins zusätzliche Links zum Anlegen von Büchern und Bildern.
+ * - Ermöglicht das Ein- und Ausloggen über Cookies.
+ * - Bietet einen Link zur Suchseite.
+ */
 const TopBar = ({ hasToken, username }: TopBarProps) => {
   return (
     <div

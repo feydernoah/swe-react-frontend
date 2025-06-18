@@ -1,3 +1,5 @@
+// Playwright-Konfiguration für End-to-End-Tests
+
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({

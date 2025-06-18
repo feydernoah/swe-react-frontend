@@ -1,5 +1,13 @@
+/**
+ * Globale CSS- und Theme-Definitionen für die Anwendung.
+ *
+ * - Importiert TailwindCSS und definiert ein eigenes DaisyUI-Theme ("black") für den Dark Mode.
+ * - Legt zentrale Farbvariablen, Radii, Abstände und weitere Design-Parameter für das gesamte Styling fest.
+ * - Änderungen an diesen Variablen wirken sich auf das Aussehen der gesamten App aus.
+ *
+ * Die .app-bg-Klasse sorgt für ein konsistentes, dunkles Hintergrund-Layout.
+ */
 @import 'tailwindcss';
-
 @plugin "daisyui/theme" {
   name: 'black';
   default: false;
