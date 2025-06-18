@@ -6,6 +6,7 @@ import TopBar from './TopBar.tsx';
 import SearchPage from './SearchPage';
 import Create from './Create';
 import CreateImage from './CreateImage';
+import LandingPage from './LandingPage.tsx';
 
 const App = () => {
   const hasToken = !!Cookies.get('access_token');
@@ -16,21 +17,13 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/create" element={<Create />} />
         <Route path="/create-image" element={<CreateImage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route
           path="/search"
           element={
             <div className="app-bg">
               <TopBar hasToken={hasToken} username={username} />
               <SearchPage />
-            </div>
-          }
-        />
-        <Route
-          path="/"
-          element={
-            <div data-theme="black" className="bg-primary min-h-screen">
-              <TopBar hasToken={hasToken} username={username} />
-              {/* Hier kann weiterer Seiteninhalt stehen */}
             </div>
           }
         />

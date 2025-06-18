@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Bars3Icon } from '@heroicons/react/24/solid';
-import './Login.css'
 interface TopBarProps {
   hasToken: boolean;
   username?: string;

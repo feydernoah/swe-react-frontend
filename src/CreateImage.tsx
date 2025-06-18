@@ -82,7 +82,7 @@ const CreateImage = () => {
 
   if (username !== 'admin') {
     return (
-      <div className="app-bg min-h-screen">
+      <div data-theme="black" className="bg-primary min-h-screen">
         <TopBar hasToken={hasToken} username={username} />
         <div className="p-8">
           <h1 className="text-2xl font-bold mb-4">Zugriff verweigert</h1>
@@ -128,24 +128,24 @@ const CreateImage = () => {
                 />
               </div>
             )}
-            <button type="submit" className="btn btn-error w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
+            <button type="submit" className="btn btn-accent w-full mt-2" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
           </form>
           {message && (
             <div>
               <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="bg-red-600 text-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
+                <div className="bg-error text-error-content rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
                   <div className="mb-4 text-lg font-semibold">{message}</div>
                   <button
-                    className="mt-2 px-4 py-2 bg-white text-red-700 rounded hover:bg-gray-100 font-bold"
-                    onClick={() => setMessage(null)}
-                    autoFocus
-                    type="button"
+                      className="btn btn-accent w-full mt-2"
+                      onClick={() => setMessage(null)}
+                      autoFocus
+                      type="button"
                   >
                     OK
                   </button>
                 </div>
               </div>
-              <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setMessage(null)} />
+              <div className="fixed inset-0 bg-primary opacity-40 z-40" onClick={() => setMessage(null)} />
             </div>
           )}
         </div>

@@ -42,7 +42,7 @@ const LoginPage = () => {
     <div data-theme="black" className="bg-primary flex flex-col items-center justify-center min-h-screen">
       <div className="bg-base-100 rounded-lg p-8 shadow-lg">
       <h2 className="text-2xl text-neutral font-bold mb-4">Login</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="login-form">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full max-w-xs mt-4 items-center">
         <label className="form-control w-full max-w-xs mb-4">
           <span className="label-text text-neutral">E-Mail</span>
           <input type="text" {...register('username', { required: 'Username ist erforderlich' })} className="input input-bordered input-primary w-full max-w-xs" />
@@ -57,10 +57,10 @@ const LoginPage = () => {
       </form>
       {errorMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-red-600 text-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
+          <div className="bg-error text-error-content rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
             <div className="mb-4 text-lg font-semibold">{errorMessage}</div>
             <button
-              className="mt-2 px-4 py-2 bg-white text-red-700 rounded hover:bg-gray-100 font-bold"
+              className="btn btn-accent w-full mt-2"
               onClick={() => setErrorMessage(null)}
               autoFocus
               type="button"
@@ -70,7 +70,7 @@ const LoginPage = () => {
           </div>
         </div>
       )}
-      {errorMessage && <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setErrorMessage(null)} />}
+      {errorMessage && <div className="fixed inset-0 bg-primary opacity-40 z-40" onClick={() => setErrorMessage(null)} />}
        </div>
     </div>
   );

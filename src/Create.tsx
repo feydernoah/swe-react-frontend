@@ -100,7 +100,7 @@ const Create = () => {
 
   if (username !== 'admin') {
     return (
-      <div className="app-bg min-h-screen">
+      <div data-theme="black" className="bg-primary min-h-screen">
         <TopBar hasToken={hasToken} username={username} />
         <div className="p-8">
           <h1 className="text-2xl font-bold mb-4">Zugriff verweigert</h1>
@@ -113,7 +113,7 @@ const Create = () => {
       <div data-theme="black" className="bg-primary min-h-screen flex flex-col">
         <TopBar hasToken={hasToken} username={username} />
         <div className="flex flex-1 items-center justify-center px-2 sm:px-0">
-          <div className="bg-black/80 rounded-lg p-6 shadow-lg w-full max-w-md flex flex-col items-center">
+          <div className="bg-base-100 rounded-lg p-6 shadow-lg w-full max-w-md flex flex-col items-center">
             <h1 className="text-xl font-bold mb-3 text-neutral">Buch anlegen</h1>
             <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-3 items-center text-sm sm:flex-row sm:flex-wrap sm:justify-center sm:items-end">
               <div className="flex flex-col gap-3 w-full sm:flex-row sm:flex-wrap sm:gap-3 sm:justify-center">
@@ -189,10 +189,10 @@ const Create = () => {
             {message && (
               <div>
                 <div className="fixed inset-0 flex items-center justify-center z-50">
-                  <div className="bg-red-600 text-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
+                  <div className="bg-error text-error-content rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
                     <div className="mb-4 text-lg font-semibold">{message}</div>
                     <button
-                      className="mt-2 px-4 py-2 bg-white text-red-700 rounded hover:bg-gray-100 font-bold"
+                      className="btn btn-accent w-full mt-2"
                       onClick={() => setMessage(null)}
                       autoFocus
                       type="button"
@@ -201,7 +201,7 @@ const Create = () => {
                     </button>
                   </div>
                 </div>
-                <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setMessage(null)} />
+                <div className="fixed inset-0 bg-primary opacity-40 z-40" onClick={() => setMessage(null)} />
               </div>
             )}
           </div>

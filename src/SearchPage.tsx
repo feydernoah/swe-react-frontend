@@ -99,7 +99,7 @@ const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookI
           <span className="font-bold capitalize">{key}:</span>
           <div className="flex flex-wrap gap-2 mt-1">
             {value.map((item, idx) => (
-              <span key={idx} className="bg-gray-700 text-white px-2 py-1 rounded text-xs">{typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}</span>
+              <span key={idx} className="bg-neutral text-primary-content px-2 py-1 rounded text-xs">{typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}</span>
             ))}
           </div>
         </div>
@@ -109,7 +109,7 @@ const renderOtherFields = (entries: [string, unknown][], onRatingChange?: (bookI
       return (
         <div key={key} className="flex flex-col">
           <span className="font-bold capitalize">{key}:</span>
-          <pre className="text-xs text-gray-300 bg-gray-900 rounded p-2 mt-2 overflow-x-auto">
+          <pre className="text-xs text-info-content bg-base-200 rounded p-2 mt-2 overflow-x-auto">
             {JSON.stringify(value, null, 2)}
           </pre>
         </div>
@@ -154,7 +154,7 @@ const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
   const imgSrc = `https://localhost:3000/rest/file/${encodeURIComponent(bookId)}`;
   const [error, setError] = useState(false);
   return (
-    <div className="w-28 h-36 flex items-center justify-center bg-gray-900 rounded shadow border border-gray-700 overflow-hidden mr-4">
+    <div className="w-28 h-36 flex items-center justify-center bg-base-200 rounded shadow border border-base-300 overflow-hidden mr-4">
       {!error ? (
         <img
           src={imgSrc}
@@ -163,7 +163,7 @@ const BookImage = ({ bookId, title }: { bookId: string, title?: string }) => {
           onError={() => setError(true)}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center w-full h-full text-gray-400">
+        <div className="flex flex-col items-center justify-center w-full h-full text-neutral-content">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9 6 9-6" />
           </svg>
@@ -425,7 +425,7 @@ const SearchPage = () => {
   const renderBooks = () => {
     if (!books) return null;
     if (books.length === 0) {
-      return <div className="text-white mt-8">Keine Bücher gefunden oder ungültige Antwort.</div>;
+      return <div className="text-primary-content mt-8">Keine Bücher gefunden oder ungültige Antwort.</div>;
     }
     const username = Cookies.get('username');
     const isAdmin = username === 'admin';
@@ -436,21 +436,21 @@ const SearchPage = () => {
       const contentBooks = paginated.content as Array<Record<string, unknown>>;
       const pageInfo = paginated.page as Record<string, unknown> | undefined;
       return (
-        <div className="mt-8 w-full max-w-2xl bg-gray-800 rounded-lg p-6 shadow-lg">
-          <h3 className="text-2xl font-bold mb-4 text-white border-b border-gray-600 pb-2">Gefundene Bücher:</h3>
-          <ul className="divide-y divide-gray-700">
+        <div className="mt-8 w-full max-w-2xl bg-base-100 rounded-lg p-6 shadow-lg">
+          <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">Gefundene Bücher:</h3>
+          <ul className="divide-y divide-base-300">
             {contentBooks.map((buch, idx) => {
               const entries = Object.entries(buch);
               const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
               return (
-                <li key={typeof buch.id === 'string' ? buch.id : idx} className="py-4 text-white flex items-start relative">
+                <li key={typeof buch.id === 'string' ? buch.id : idx} className="py-4 text-primary-content flex items-start relative">
                   {isAdmin && (
                     <button
                       title="Buch löschen"
                       onClick={() => handleDeleteBook(typeof buch.id === 'string' ? buch.id : String(buch.id))}
-                      className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-red-700 group"
+                      className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-error group"
                     >
-                      <svg className="w-6 h-6 text-gray-400 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
@@ -473,7 +473,7 @@ const SearchPage = () => {
                         <div className="font-bold mb-1">Schlagwörter:</div>
                         <div className="flex flex-wrap gap-2">
                           {schlagwoerter.map((wort, i) => (
-                            <span key={wort + '-' + i} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-blue-400">{wort}</span>
+                            <span key={wort + '-' + i} className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-accent/50">{wort}</span>
                           ))}
                         </div>
                       </div>
@@ -487,18 +487,18 @@ const SearchPage = () => {
             })}
           </ul>
           {pageInfo && (
-            <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between text-gray-400 text-sm gap-2">
+            <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between text-neutral-content text-sm gap-2">
               <span>Seite: {typeof pageInfo.number === 'number' ? (pageInfo.number + 1) : ''} / {pageInfo.totalPages as number} &nbsp; (insgesamt {pageInfo.totalElements as number} Bücher)</span>
               <div className="flex gap-2 mt-2 sm:mt-0 items-center">
                 <button
-                  className="px-3 py-1 rounded bg-blue-700 text-white disabled:opacity-50"
+                  className="px-3 py-1 rounded bg-info text-info-content disabled:opacity-50"
                   disabled={typeof pageInfo.number !== 'number' || pageInfo.number <= 0}
                   onClick={() => handlePageChange((pageInfo.number as number) - 1)}
                 >
                   Zurück
                 </button>
                 <button
-                  className="px-3 py-1 rounded bg-blue-700 text-white disabled:opacity-50"
+                  className="px-3 py-1 rounded bg-info text-info-content disabled:opacity-50"
                   disabled={typeof pageInfo.number !== 'number' || (pageInfo.number as number) >= (pageInfo.totalPages as number) - 1}
                   onClick={() => handlePageChange((pageInfo.number as number) + 1)}
                 >
@@ -506,10 +506,10 @@ const SearchPage = () => {
                 </button>
                 {lastSearchAll && (
                   <div className="flex items-center gap-2 ml-4">
-                    <label htmlFor="pageSizeBottom" className="text-white">Pro Seite:</label>
+                    <label htmlFor="pageSizeBottom" className="text-primary-content">Pro Seite:</label>
                     <select
                       id="pageSizeBottom"
-                      className="rounded p-2 bg-white text-black"
+                      className="rounded p-2 bg-base-100 text-primary-content"
                       value={pageSize}
                       onChange={handlePageSizeChange}
                     >
@@ -527,21 +527,21 @@ const SearchPage = () => {
     }
     // Default: render books as before
     return (
-      <div className="mt-8 w-full max-w-2xl bg-gray-800 rounded-lg p-6 shadow-lg">
-        <h3 className="text-2xl font-bold mb-4 text-white border-b border-gray-600 pb-2">Gefundene Bücher:</h3>
-        <ul className="divide-y divide-gray-700">
+      <div className="mt-8 w-full max-w-2xl bg-primary rounded-lg p-6 shadow-lg">
+        <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">Gefundene Bücher:</h3>
+        <ul className="divide-y divide-base-300">
           {books.map((buch, idx) => {
             const entries = Object.entries(buch);
             const schlagwoerter = (entries.find(([key]) => key.toLowerCase() === 'schlagwoerter')?.[1]) as string[] | undefined;
             return (
-              <li key={buch.id || idx} className="py-4 text-white flex items-start relative">
+              <li key={buch.id || idx} className="py-4 text-primary-content flex items-start relative">
                 {isAdmin && (
                   <button
                     title="Buch löschen"
                     onClick={() => handleDeleteBook(buch.id)}
-                    className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-red-700 group"
+                    className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-error group"
                   >
-                    <svg className="w-6 h-6 text-gray-400 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -564,7 +564,7 @@ const SearchPage = () => {
                       <div className="font-bold mb-1">Schlagwörter:</div>
                       <div className="flex flex-wrap gap-2">
                         {schlagwoerter.map((wort, i) => (
-                          <span key={wort + '-' + i} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-blue-400">{wort}</span>
+                          <span key={wort + '-' + i} className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm border border-accent/50">{wort}</span>
                         ))}
                       </div>
                     </div>
@@ -584,7 +584,7 @@ const SearchPage = () => {
   return (
     <div data-theme="black" className="bg-primary min-h-screen flex flex-col items-center justify-center">
       <form onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))} className="bg-base-100 rounded-lg p-8 shadow-lg flex flex-col items-center w-full max-w-md">
-        <h2 className="text-3xl font-bold mb-6 text-white">Buchsuche</h2>
+        <h2 className="text-3xl font-bold mb-6 text-primary-content">Buchsuche</h2>
         <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
           <span className="label-text font-semibold">Buch ID oder ISBN</span>
           <input
@@ -603,11 +603,11 @@ const SearchPage = () => {
             aria-expanded={filtersOpen}
             aria-controls="filters-panel"
           >
-            <span>Filter</span>
-            <svg className={`w-5 h-5 transition-transform ${filtersOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            <span className="text-primary-content">Filter</span>
+            <svg className={`w-5 h-5 transition-transform text-primary-content ${filtersOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
           </button>
           {filtersOpen && (
-            <div id="filters-panel" className="mt-4 p-4 rounded bg-gray-900 border border-gray-700 flex flex-col gap-4 animate-fade-in">
+            <div id="filters-panel" className="mt-4 p-4 rounded bg-primary flex flex-col gap-4 animate-fade-in">
               <label className="form-control w-full">
                 <span className="label-text font-semibold">Buchtyp</span>
                 <select
@@ -633,7 +633,7 @@ const SearchPage = () => {
                         {...register('rating')}
                         checked={selectedRating === star}
                         onChange={() => setValue('rating', star)}
-                        className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring focus:ring-blue-200"
+                        className="form-radio h-4 w-4 text-info border-base-300 focus:ring focus:ring-info"
                       />
                       <StarRating rating={star} interactive={false} />
                     </label>
@@ -645,9 +645,9 @@ const SearchPage = () => {
                       {...register('rating')}
                       checked={selectedRating === undefined}
                       onChange={() => setValue('rating', undefined)}
-                      className="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring focus:ring-blue-200"
+                      className="form-radio h-4 w-4 text-info border-base-300 focus:ring focus:ring-info"
                     />
-                    <span className="text-xs text-gray-400">Alle</span>
+                    <span className="text-xs text-neutral-content">Alle</span>
                   </label>
                 </div>
               </div>
