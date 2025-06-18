@@ -15,12 +15,20 @@ const CreateImage = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [buchId, setBuchId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     setValue('image', files as FileList, { shouldValidate: true });
     trigger('image');
+    if (files && files[0]) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPreviewUrl(ev.target?.result as string);
+      reader.readAsDataURL(files[0]);
+    } else {
+      setPreviewUrl(null);
+    }
   };
 
   const onSubmit = async (data: ImageFormData) => {
@@ -112,6 +120,16 @@ const CreateImage = () => {
               />
               {errors.image && <span className="text-error mt-1">{errors.image.message as string}</span>}
             </label>
+            {previewUrl && (
+              <div className="flex justify-center items-center my-4">
+                <img
+                  src={previewUrl}
+                  alt="Vorschau"
+                  className="rounded shadow border object-cover"
+                  style={{ width: '180px', height: '180px' }}
+                />
+              </div>
+            )}
             <button type="submit" className="btn btn-error w-full" disabled={loading}>{loading ? 'Hochladen...' : 'Bild hochladen'}</button>
           </form>
           {message && (
