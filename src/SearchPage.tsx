@@ -1,5 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { StarIcon } from '@heroicons/react/24/solid';
+import { EnvelopeIcon, XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import './App.css';
 import Cookies from 'js-cookie';
 
@@ -190,22 +192,18 @@ const StarRating = ({
           disabled={!interactive}
           tabIndex={interactive ? 0 : -1}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill={
-              (
-                hovered !== null && interactive
-                  ? star <= hovered
-                  : star <= rating
-              )
-                ? '#facc15'
-                : '#374151'
-            }
+          <StarIcon
             className="w-6 h-6 transition-colors duration-150"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
-          </svg>
+            style={{
+              color:
+                (hovered !== null && interactive
+                  ? star <= hovered
+                  : star <= rating)
+                  ? '#facc15'
+                  : '#374151',
+            }}
+            aria-hidden="true"
+          />
         </button>
       ))}
     </div>
@@ -227,20 +225,7 @@ const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
         />
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full text-neutral-content">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 mb-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9 6 9-6"
-            />
-          </svg>
+          <EnvelopeIcon className="h-10 w-10 mb-1" />
           <span className="text-xs">Kein Bild</span>
         </div>
       )}
@@ -616,19 +601,7 @@ const SearchPage = () => {
                       }
                       className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-error group"
                     >
-                      <svg
-                        className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
+                      <XMarkIcon className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors" />
                     </button>
                   )}
                   <BookImage
@@ -763,19 +736,7 @@ const SearchPage = () => {
                     onClick={() => handleDeleteBook(buch.id)}
                     className="absolute top-0 right-0 p-2 rounded-full transition-colors hover:bg-error group"
                   >
-                    <svg
-                      className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <XMarkIcon className="w-6 h-6 text-neutral-content group-hover:text-error-content transition-colors" />
                   </button>
                 )}
                 <BookImage
@@ -855,19 +816,13 @@ const SearchPage = () => {
             aria-controls="filters-panel"
           >
             <span className="text-primary-content">Filter</span>
-            <svg
+            <ChevronRightIcon
               className={`w-5 h-5 transition-transform text-primary-content ${filtersOpen ? 'rotate-90' : ''}`}
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            />
           </button>
           {filtersOpen && (
             <div
