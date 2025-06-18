@@ -67,7 +67,7 @@ const LoginPage = () => {
           className="flex flex-col gap-4 w-full max-w-xs mt-4 items-center"
         >
           <label className="form-control w-full max-w-xs mb-4">
-            <span className="label-text text-neutral">E-Mail</span>
+            <span className="label-text text-neutral">Username</span>
             <input
               type="text"
               {...register('username', {

@@ -214,7 +214,7 @@ const StarRating = ({
 
 const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
 // Zeigt das Buchcover an oder einen Platzhalter, falls kein Bild vorhanden ist.
-  const imgSrc = `https://localhost:3000/rest/file/${encodeURIComponent(bookId)}`;
+  const imgSrc = `https://localhost:3001/rest/file/${encodeURIComponent(bookId)}`;
   const [error, setError] = useState(false);
   return (
     <div className="w-28 h-36 flex items-center justify-center bg-base-200 rounded shadow border border-base-300 overflow-hidden mr-4">
@@ -298,7 +298,7 @@ const SearchPage = () => {
     setLastSearchAll(isAllBooks);
     if (isAllBooks && typeof pageOverride !== 'number') setPage(0);
     try {
-      let url = 'https://localhost:3000/rest';
+      let url = 'https://localhost:3001/rest';
       const isbnRegex =
         /^(97(8|9)[- ]?)?\d{1,5}[- ]?\d{1,7}[- ]?\d{1,7}[- ]?[\dX]$/i;
       const params = new URLSearchParams();
