@@ -21,7 +21,7 @@ type FormData = {
 
 /**
  * Diese Komponente ermöglicht es Admin-Benutzern, ein neues Buch anzulegen.
- * 
+ *
  * Funktionen:
  * - Anzeige eines Formulars für ISBN, Titel, Untertitel, Preis und Bewertung
  * - Validierung der Eingaben mit react-hook-form

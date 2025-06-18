@@ -10,7 +10,7 @@ import LandingPage from './LandingPage.tsx';
 
 /**
  * Hauptkomponente der Anwendung.
- * 
+ *
  * Verantwortlich für:
  * - Routing zwischen den Seiten (Login, Suche, Buch-/Bild-Anlegen)
  * - Einbindung des Layouts (z.B. TopBar)

@@ -16,18 +16,22 @@ export default defineConfig({
     },
     port: 3001,
     proxy: {
-    '/rest': {
-      target: 'https://localhost:3000',
-      secure: false,
+      '/rest': {
+        target: 'https://localhost:3000',
+        secure: false,
+      },
+      '/auth/token': {
+        target: 'https://localhost:3000',
+        secure: false,
+      },
+      '/dev/db_populate': {
+        target: 'https://localhost:3000',
+        secure: false,
+      },
+      '/auth/refresh': {
+        target: 'https://localhost:3000',
+        secure: false,
+      },
     },
-    '/auth/token': {
-      target: 'https://localhost:3000',
-      secure: false,
-    },
-    '/dev/db_populate': {
-      target: 'https://localhost:3000',
-      secure: false,
-    },
-  }
   },
 });

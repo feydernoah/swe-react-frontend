@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
  * LandingPage-Komponente
  *
  * Stellt die Startseite der Anwendung dar.
- * 
+ *
  * Funktionen:
  * - Zeigt die TopBar mit Login-Status und Benutzername an.
  * - Präsentiert ein Bannerbild und ein alternatives Bild im Vergleichsmodus (diff).

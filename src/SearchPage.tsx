@@ -1,16 +1,20 @@
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { StarIcon } from '@heroicons/react/24/solid';
-import { EnvelopeIcon, XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import {
+  EnvelopeIcon,
+  XMarkIcon,
+  ChevronRightIcon,
+} from '@heroicons/react/24/outline';
 import './App.css';
 import Cookies from 'js-cookie';
 
 /**
  * SearchPage Komponente für die Buchsuche.
- * 
+ *
  * Ermöglicht die Suche nach Büchern anhand von ID, ISBN oder Typ.
  * Unterstützt Paginierung, Bewertung (nur für Admins), Anzeige von Buchdetails und Bildern.
- * 
+ *
  */
 interface Book {
   id: string;
@@ -39,7 +43,7 @@ interface SearchFormInputs {
 }
 
 const renderBookFields = (entries: [string, unknown][]) => {
-// Rendert die wichtigsten Buchfelder (ID, Titel, Untertitel)
+  // Rendert die wichtigsten Buchfelder (ID, Titel, Untertitel)
   return entries.map(([key, value]) => {
     if (key.toLowerCase() === 'schlagwoerter') return null;
     if (key === 'id') {
@@ -195,12 +199,13 @@ const StarRating = ({
           <StarIcon
             className="w-6 h-6 transition-colors duration-150"
             style={{
-              color:
-                (hovered !== null && interactive
+              color: (
+                hovered !== null && interactive
                   ? star <= hovered
-                  : star <= rating)
-                  ? '#facc15'
-                  : '#374151',
+                  : star <= rating
+              )
+                ? '#facc15'
+                : '#374151',
             }}
             aria-hidden="true"
           />
@@ -211,7 +216,7 @@ const StarRating = ({
 };
 
 const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
-// Zeigt das Buchcover an oder einen Platzhalter, falls kein Bild vorhanden ist.
+  // Zeigt das Buchcover an oder einen Platzhalter, falls kein Bild vorhanden ist.
   const imgSrc = `https://localhost:3001/rest/file/${encodeURIComponent(bookId)}`;
   const [error, setError] = useState(false);
   return (
@@ -663,7 +668,7 @@ const SearchPage = () => {
               </span>
               <div className="flex gap-2 mt-2 sm:mt-0 items-center">
                 <button
-                  className="px-3 py-1 rounded bg-info text-info-content disabled:opacity-50"
+                  className="px-3 py-1 rounded bg-primary text-info-content disabled:opacity-50"
                   disabled={
                     typeof pageInfo.number !== 'number' || pageInfo.number <= 0
                   }
@@ -674,7 +679,7 @@ const SearchPage = () => {
                   Zurück
                 </button>
                 <button
-                  className="px-3 py-1 rounded bg-info text-info-content disabled:opacity-50"
+                  className="px-3 py-1 rounded bg-primary text-info-content disabled:opacity-50"
                   disabled={
                     typeof pageInfo.number !== 'number' ||
                     (pageInfo.number as number) >=
