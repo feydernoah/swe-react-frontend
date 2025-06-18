@@ -1,6 +1,17 @@
 import TopBar from './TopBar';
 import Cookies from 'js-cookie';
 
+/**
+ * LandingPage-Komponente
+ *
+ * Stellt die Startseite der Anwendung dar.
+ * 
+ * Funktionen:
+ * - Zeigt die TopBar mit Login-Status und Benutzername an.
+ * - Präsentiert ein Bannerbild und ein alternatives Bild im Vergleichsmodus (diff).
+ * - Nutzt das DaisyUI-Diff-Feature für einen visuellen Effekt.
+ * - Passt das Layout an das Dark Theme an.
+ */
 const LandingPage = () => {
   const hasToken = !!Cookies.get('access_token');
   const username = Cookies.get('username');
