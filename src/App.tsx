@@ -2,7 +2,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './Login.tsx';
 import Cookies from 'js-cookie';
-import TopBar from './TopBar';
+import TopBar from './TopBar.tsx';
 import SearchPage from './SearchPage';
 import Create from './Create';
 import CreateImage from './CreateImage';

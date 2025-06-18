@@ -328,8 +328,7 @@ const SearchPage = () => {
           if (errorResult && (errorResult.message || errorResult.error)) {
             errorText = errorResult.message || errorResult.error;
           }
-        } catch {
-          // ignore JSON parse errors
+        } catch {//
         }
         setError(errorText);
         return;
@@ -525,7 +524,7 @@ const SearchPage = () => {
         </label>
         <button
           type="submit"
-          className="btn btn-info w-full"
+          className="btn btn-accent w-full"
         >
           Suchen
         </button>

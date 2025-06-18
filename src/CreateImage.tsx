@@ -13,9 +13,8 @@ const CreateImage = () => {
   const username = Cookies.get('username');
   const { register, handleSubmit, formState: { errors }, reset, setValue, trigger } = useForm<ImageFormData>();
   const [message, setMessage] = useState<string | null>(null);
-  const [buchId, setBuchId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +32,6 @@ const CreateImage = () => {
 
   const onSubmit = async (data: ImageFormData) => {
     setMessage(null);
-    setBuchId(null);
     setLoading(true);
     // Buch-id anhand der ISBN ermitteln
     let id: string | null = null;
@@ -45,7 +43,6 @@ const CreateImage = () => {
       } else {
         throw new Error('Buch nicht gefunden');
       }
-      setBuchId(id);
     } catch {
       setMessage('Buch mit dieser ISBN nicht gefunden!');
       setLoading(false);
@@ -71,6 +68,7 @@ const CreateImage = () => {
       if (response.ok) {
         setMessage('Bild erfolgreich hochgeladen!');
         reset();
+        setPreviewUrl(null);
         if (imageInputRef.current) imageInputRef.current.value = '';
       } else {
         const errorText = await response.text();
@@ -102,10 +100,10 @@ const CreateImage = () => {
         <div className="p-8 w-full max-w-4xl flex flex-col items-center justify-center">
           <h1 className="text-2xl font-bold mb-4">Bild zu Buch hochladen</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-md flex flex-col" encType="multipart/form-data">
-            <label className="form-control w-full max-w-xs mb-4">
+            <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
               <span className="label-text font-semibold">ISBN*</span>
               <input {...register('isbn', { required: 'ISBN ist erforderlich' })} className="input input-bordered w-full max-w-xs" />
-              {errors.isbn && <span className="text-error mt-1">{errors.isbn.message as string}</span>}
+              <span className="text-error mt-1 min-h-[20px] block">{errors.isbn ? errors.isbn.message as string : '\u00A0'}</span>
             </label>
             <div className="w-full" />
             <label className="form-control w-full max-w-xs mb-4">
@@ -138,7 +136,7 @@ const CreateImage = () => {
                 <div className="bg-red-600 text-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
                   <div className="mb-4 text-lg font-semibold">{message}</div>
                   <button
-                    className="btn btn-accent"
+                    className="mt-2 px-4 py-2 bg-white text-red-700 rounded hover:bg-gray-100 font-bold"
                     onClick={() => setMessage(null)}
                     autoFocus
                     type="button"
@@ -147,6 +145,7 @@ const CreateImage = () => {
                   </button>
                 </div>
               </div>
+              <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setMessage(null)} />
             </div>
           )}
         </div>

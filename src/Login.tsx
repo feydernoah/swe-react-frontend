@@ -1,13 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import './Login.css';
+import { useState } from 'react';
 
 type LoginFormInputs = { username: string; password: string };
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       const params = new URLSearchParams();
@@ -20,6 +21,10 @@ const LoginPage = () => {
         },
         body: params.toString(),
       });
+      if (response.status === 401) {
+        setErrorMessage('Login fehlgeschlagen: Benutzername oder Passwort falsch.');
+        return;
+      }
       const result = await response.json();
       if (result.access_token) {
         Cookies.set('access_token', result.access_token, { expires: 0.0208 });
@@ -29,7 +34,7 @@ const LoginPage = () => {
       navigate('/');
       window.location.reload();
     } catch (error) {
-      alert('Fehler beim Login: ' + error);
+      setErrorMessage('Fehler beim Login: ' + error);
     }
   };
   return (
@@ -50,6 +55,22 @@ const LoginPage = () => {
         </label>
         <button type="submit" className="btn btn-accent">Login</button>
       </form>
+      {errorMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-red-600 text-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center animate-pop-in">
+            <div className="mb-4 text-lg font-semibold">{errorMessage}</div>
+            <button
+              className="mt-2 px-4 py-2 bg-white text-red-700 rounded hover:bg-gray-100 font-bold"
+              onClick={() => setErrorMessage(null)}
+              autoFocus
+              type="button"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+      {errorMessage && <div className="fixed inset-0 bg-black opacity-40 z-40" onClick={() => setErrorMessage(null)} />}
        </div>
     </div>
   );
