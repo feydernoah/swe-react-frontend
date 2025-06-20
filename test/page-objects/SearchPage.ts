@@ -56,17 +56,23 @@ export class SearchPage {
     const stars = ratingContainer.locator('svg');
     const filledStars = await stars.evaluateAll(
       (nodes: Element[]) =>
-        nodes.filter((n) => n.getAttribute('fill') === '#facc15').length,
+        nodes.filter((n) => {
+          // Prüfe fill-Attribut und CSS-Farbe
+          const fill = n.getAttribute('fill');
+          const style = (n as HTMLElement).style?.color;
+          return (
+            fill === '#facc15' ||
+            style === 'rgb(250, 204, 21)' ||
+            style === '#facc15'
+          );
+        }).length,
     );
     return filledStars;
   }
 
   async setBookRating(bookId: string, newRating: number) {
-    // Find the list item for the book
     const bookItem = this.resultList.locator(`li:has-text('Id: ${bookId}')`);
-    // Find the Bewertung container inside that item
     const ratingContainer = bookItem.locator('div:has-text("Bewertung:")');
-    // Find the button with the correct aria-label
     const button = ratingContainer.locator(
       `button[aria-label="Set rating to ${newRating}"]`,
     );

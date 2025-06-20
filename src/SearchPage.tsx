@@ -7,6 +7,7 @@ import {
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import './App.css';
+import TopBar from './TopBar';
 import Cookies from 'js-cookie';
 
 /**
@@ -157,7 +158,7 @@ const renderOtherFields = (
       return (
         <div key={key} className="flex flex-col">
           <span className="font-bold capitalize">{key}:</span>
-          <pre className="text-xs text-info-content bg-base-200 rounded p-2 mt-2 overflow-x-auto">
+          <pre className="text-xs text-info-content bg-base-100 rounded p-2 mt-2 overflow-x-auto">
             {JSON.stringify(value, null, 2)}
           </pre>
         </div>
@@ -241,6 +242,8 @@ const BookImage = ({ bookId, title }: { bookId: string; title?: string }) => {
 // Hauptkomponente für die Buchsuche. Stellt das Suchformular, die Ergebnisliste und die Paginierung bereit.
 
 const SearchPage = () => {
+  const hasToken = !!Cookies.get('access_token');
+  const username = Cookies.get('username');
   const { register, handleSubmit, setValue, watch, getValues } =
     useForm<SearchFormInputs>({
       defaultValues: { rating: undefined },
@@ -264,9 +267,8 @@ const SearchPage = () => {
     pageOverride?: number,
     pageSizeOverride?: number,
   ) => {
-    // Use getValues to get the latest rating value
     const formValues = getValues();
-    // Accept both string and number for rating
+
     let rating: number | undefined = undefined;
     if (
       formValues.rating !== undefined &&
@@ -370,13 +372,13 @@ const SearchPage = () => {
     }
   };
 
-  // Handler for page change
+  // Handler für seitenwechsel
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     onSubmit(lastSearchInput, newPage, pageSize);
   };
 
-  // Handler for page size change
+  // Handler for seitengröße ändern
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSize = parseInt(e.target.value, 10);
     setPageSize(newSize);
@@ -390,10 +392,10 @@ const SearchPage = () => {
       setError('Nicht eingeloggt oder keine Berechtigung');
       return;
     }
-    // Find the book to update (handle paginated and non-paginated)
+    // Finde das zu Ändernde Buch
     let bookToUpdate: Book | undefined = undefined;
     if (books && books.length > 0) {
-      // Check if paginated (books[0].content is an array)
+      // Prüfe, ob die Bücher paginiert sind
       const firstBook = books[0] as unknown;
       const isPaginated =
         typeof firstBook === 'object' &&
@@ -567,7 +569,7 @@ const SearchPage = () => {
     }
     const username = Cookies.get('username');
     const isAdmin = username === 'admin';
-    // Paginated response
+
     const maybePaginated =
       books.length === 1 &&
       books[0] &&
@@ -720,7 +722,7 @@ const SearchPage = () => {
       );
     }
     return (
-      <div className="mt-8 w-full max-w-2xl bg-primary rounded-lg p-6 shadow-lg">
+      <div className="mt-8 w-full max-w-2xl bg-base-100 rounded-lg p-6 shadow-lg">
         <h3 className="text-2xl font-bold mb-4 text-primary-content border-b border-base-300 pb-2">
           Gefundene Bücher:
         </h3>
@@ -791,110 +793,115 @@ const SearchPage = () => {
   };
 
   return (
-    <div
-      data-theme="black"
-      className="bg-primary min-h-screen flex flex-col items-center justify-center"
-    >
-      <form
-        onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))}
-        className="bg-base-100 rounded-lg p-8 shadow-lg flex flex-col items-center w-full max-w-md"
+    <>
+      <TopBar hasToken={hasToken} username={username} />
+      <div
+        data-theme="black"
+        className="bg-primary min-h-screen flex flex-col items-center justify-center"
       >
-        <h2 className="text-3xl font-bold mb-6 text-primary-content">
-          Buchsuche
-        </h2>
-        <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
-          <span className="label-text font-semibold">Buch ID oder ISBN</span>
-          <input
-            id="query"
-            type="text"
-            {...register('query')}
-            className="input input-bordered w-full max-w-xs"
-            placeholder="Geben Sie die Buch-ID oder ISBN ein"
-          />
-        </label>
-        <div className="w-full max-w-xs mb-4">
-          <button
-            type="button"
-            className="flex items-center gap-2 text-info font-semibold focus:outline-none"
-            onClick={() => setFiltersOpen((open) => !open)}
-            aria-expanded={filtersOpen}
-            aria-controls="filters-panel"
-          >
-            <span className="text-primary-content">Filter</span>
-            <ChevronRightIcon
-              className={`w-5 h-5 transition-transform text-primary-content ${filtersOpen ? 'rotate-90' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
+        <form
+          onSubmit={handleSubmit((data) => onSubmit(data, 0, pageSize))}
+          className="bg-base-100 rounded-lg p-8 shadow-lg flex flex-col items-center w-full max-w-md"
+        >
+          <h2 className="text-3xl font-bold mb-6 text-primary-content">
+            Buchsuche
+          </h2>
+          <label className="form-control w-full max-w-xs mb-4 min-h-[92px]">
+            <span className="label-text font-semibold">Buch ID oder ISBN</span>
+            <input
+              id="query"
+              type="text"
+              {...register('query')}
+              className="input input-bordered w-full max-w-xs"
+              placeholder="Geben Sie die Buch-ID oder ISBN ein"
             />
-          </button>
-          {filtersOpen && (
-            <div
-              id="filters-panel"
-              className="mt-4 p-4 rounded bg-primary flex flex-col gap-4 animate-fade-in"
+          </label>
+          <div className="w-full max-w-xs mb-4">
+            <button
+              type="button"
+              className="flex items-center gap-2 text-info font-semibold focus:outline-none"
+              onClick={() => setFiltersOpen((open) => !open)}
+              aria-expanded={filtersOpen}
+              aria-controls="filters-panel"
             >
-              <label className="form-control w-full">
-                <span className="label-text font-semibold">Buchtyp</span>
-                <select
-                  id="art"
-                  {...register('art')}
-                  className="select select-bordered w-full"
-                  defaultValue=""
-                >
-                  <option value="">Alle Typen</option>
-                  <option value="EPUB">EPUB</option>
-                  <option value="HARDCOVER">HARDCOVER</option>
-                  <option value="PAPERBACK">PAPERBACK</option>
-                </select>
-              </label>
-              <div className="form-control w-full">
-                <span className="label-text font-semibold mb-2">
-                  Bewertung (mindestens)
-                </span>
-                <div className="flex flex-col gap-2 items-start">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <label
-                      key={star}
-                      className="flex flex-row items-center cursor-pointer gap-2"
-                    >
+              <span className="text-primary-content">Filter</span>
+              <ChevronRightIcon
+                className={`w-5 h-5 transition-transform text-primary-content ${filtersOpen ? 'rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              />
+            </button>
+            {filtersOpen && (
+              <div
+                id="filters-panel"
+                className="mt-4 p-4 rounded bg-base-100 flex flex-col gap-4 animate-fade-in"
+              >
+                <label className="form-control w-full">
+                  <span className="label-text font-semibold">Buchtyp</span>
+                  <select
+                    id="art"
+                    {...register('art')}
+                    className="select select-bordered w-full"
+                    defaultValue=""
+                  >
+                    <option value="">Alle Typen</option>
+                    <option value="EPUB">EPUB</option>
+                    <option value="HARDCOVER">HARDCOVER</option>
+                    <option value="PAPERBACK">PAPERBACK</option>
+                  </select>
+                </label>
+                <div className="form-control w-full">
+                  <span className="label-text font-semibold mb-2">
+                    Bewertung (mindestens)
+                  </span>
+                  <div className="flex flex-col gap-2 items-start">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <label
+                        key={star}
+                        className="flex flex-row items-center cursor-pointer gap-2"
+                      >
+                        <input
+                          type="radio"
+                          value={star}
+                          {...register('rating')}
+                          checked={selectedRating === star}
+                          onChange={() => setValue('rating', star)}
+                          className="form-radio h-4 w-4 text-info border-base-300 focus:ring focus:ring-info"
+                        />
+                        <StarRating rating={star} interactive={false} />
+                      </label>
+                    ))}
+                    <label className="flex flex-row items-center cursor-pointer gap-2 mt-2">
                       <input
                         type="radio"
-                        value={star}
+                        value=""
                         {...register('rating')}
-                        checked={selectedRating === star}
-                        onChange={() => setValue('rating', star)}
+                        checked={selectedRating === undefined}
+                        onChange={() => setValue('rating', undefined)}
                         className="form-radio h-4 w-4 text-info border-base-300 focus:ring focus:ring-info"
                       />
-                      <StarRating rating={star} interactive={false} />
+                      <span className="text-xs text-neutral-content">Alle</span>
                     </label>
-                  ))}
-                  <label className="flex flex-row items-center cursor-pointer gap-2 mt-2">
-                    <input
-                      type="radio"
-                      value=""
-                      {...register('rating')}
-                      checked={selectedRating === undefined}
-                      onChange={() => setValue('rating', undefined)}
-                      className="form-radio h-4 w-4 text-info border-base-300 focus:ring focus:ring-info"
-                    />
-                    <span className="text-xs text-neutral-content">Alle</span>
-                  </label>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+          </div>
+          <button type="submit" className="btn btn-accent w-full">
+            Suchen
+          </button>
+          {error && (
+            <div className="text-error text-sm text-center">{error}</div>
           )}
-        </div>
-        <button type="submit" className="btn btn-accent w-full">
-          Suchen
-        </button>
-        {error && <div className="text-error text-sm text-center">{error}</div>}
-        {loading && (
-          <div className="text-info text-sm text-center">Lade Bücher...</div>
-        )}
-      </form>
-      {renderBooks()}
-    </div>
+          {loading && (
+            <div className="text-info text-sm text-center">Lade Bücher...</div>
+          )}
+        </form>
+        {renderBooks()}
+      </div>
+    </>
   );
 };
 
